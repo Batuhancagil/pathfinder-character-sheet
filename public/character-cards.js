@@ -16,11 +16,13 @@ class CharacterCardManager {
     }
 
     setupEventListeners() {
-        // Character import button
-        const importBtn = document.getElementById('importCharacterBtn');
-        if (importBtn) {
-            importBtn.addEventListener('click', () => this.showImportDialog());
-        }
+        // Character import button - use event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'importCharacterBtn') {
+                e.preventDefault();
+                this.showImportDialog();
+            }
+        });
 
         // Character selection
         document.addEventListener('click', (e) => {
@@ -40,13 +42,28 @@ class CharacterCardManager {
         });
 
         // Back to cards button
-        const backBtn = document.getElementById('backToCardsBtn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => this.showCharacterCards());
-        }
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'backToCardsBtn') {
+                this.showCharacterCards();
+            }
+        });
+
+        // Import dialog buttons
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'importBtn') {
+                this.handleImport();
+            }
+            if (e.target && e.target.id === 'cancelImportBtn') {
+                const dialog = document.querySelector('.import-dialog');
+                if (dialog) {
+                    document.body.removeChild(dialog);
+                }
+            }
+        });
     }
 
     showImportDialog() {
+        console.log('Showing import dialog');
         const dialog = document.createElement('div');
         dialog.className = 'import-dialog';
         dialog.innerHTML = `
@@ -64,15 +81,6 @@ class CharacterCardManager {
 
         document.body.appendChild(dialog);
 
-        // Event listeners for dialog
-        document.getElementById('importBtn').addEventListener('click', () => {
-            this.handleImport();
-        });
-
-        document.getElementById('cancelImportBtn').addEventListener('click', () => {
-            document.body.removeChild(dialog);
-        });
-
         // Close on outside click
         dialog.addEventListener('click', (e) => {
             if (e.target === dialog) {
@@ -85,13 +93,23 @@ class CharacterCardManager {
         const jsonInput = document.getElementById('pathbuilderJson');
         const errorDiv = document.getElementById('importError');
         
+        if (!jsonInput || !jsonInput.value.trim()) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Please paste your Pathbuilder JSON';
+                errorDiv.style.display = 'block';
+            }
+            return;
+        }
+        
         try {
             const jsonData = JSON.parse(jsonInput.value);
             const validation = this.importer.validatePathbuilderJson(jsonData);
             
             if (!validation.valid) {
-                errorDiv.textContent = validation.error;
-                errorDiv.style.display = 'block';
+                if (errorDiv) {
+                    errorDiv.textContent = validation.error;
+                    errorDiv.style.display = 'block';
+                }
                 return;
             }
 
@@ -99,11 +117,17 @@ class CharacterCardManager {
             if (character) {
                 this.renderCharacterCards();
                 this.selectCharacter(character.id);
-                document.body.removeChild(document.querySelector('.import-dialog'));
+                const dialog = document.querySelector('.import-dialog');
+                if (dialog) {
+                    document.body.removeChild(dialog);
+                }
             }
         } catch (error) {
-            errorDiv.textContent = 'Invalid JSON format: ' + error.message;
-            errorDiv.style.display = 'block';
+            console.error('Import error:', error);
+            if (errorDiv) {
+                errorDiv.textContent = 'Invalid JSON format: ' + error.message;
+                errorDiv.style.display = 'block';
+            }
         }
     }
 
