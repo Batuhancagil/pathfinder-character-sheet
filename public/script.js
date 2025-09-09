@@ -213,6 +213,9 @@ function updateCharacterSelects() {
     const createSelect = document.getElementById('characterSelect');
     const joinSelect = document.getElementById('joinCharacterSelect');
     
+    console.log('Updating character selects...');
+    console.log('Available characters:', characters);
+    
     // Clear existing options
     if (createSelect) {
         createSelect.innerHTML = '<option value="">Choose a character...</option>';
@@ -234,12 +237,16 @@ function updateCharacterSelects() {
             joinSelect.appendChild(option.cloneNode(true));
         }
     });
+    
+    console.log('Character selects updated. Create select options:', createSelect ? createSelect.children.length : 'not found');
 }
 
 async function createSession() {
     const sessionName = document.getElementById('sessionNameInput').value;
     const gmName = document.getElementById('gmNameInput').value;
     const characterId = document.getElementById('characterSelect').value;
+    
+    console.log('Creating session with:', { sessionName, gmName, characterId });
     
     if (!sessionName || !gmName || !characterId) {
         alert('Please fill in all fields');
@@ -248,6 +255,7 @@ async function createSession() {
     
     const character = characterCardManager.importer.getCharacterById(characterId);
     if (!character) {
+        console.error('Character not found for ID:', characterId);
         alert('Character not found');
         return;
     }
