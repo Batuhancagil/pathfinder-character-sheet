@@ -105,8 +105,18 @@
                     <div class="session-info">
                         <h3>Session: <span id="currentSessionName"></span></h3>
                         <div class="session-details">
-                            <span id="playerCount">0/6 players</span>
-                            <button class="btn-small" id="leaveSessionBtn">Leave Session</button>
+                            <div class="session-id-display">
+                                <label for="sessionIdDisplay">Session ID:</label>
+                                <div class="session-id-container">
+                                    <input type="text" id="sessionIdDisplay" readonly>
+                                    <button class="btn-small" id="copySessionIdBtn">Copy</button>
+                                </div>
+                                <small class="session-id-help">Share this ID with other players to join your session</small>
+                            </div>
+                            <div class="session-stats">
+                                <span id="playerCount">0/6 players</span>
+                                <button class="btn-small" id="leaveSessionBtn">Leave Session</button>
+                            </div>
                         </div>
                     </div>
                     

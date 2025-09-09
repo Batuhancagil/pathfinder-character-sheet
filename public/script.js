@@ -79,6 +79,14 @@ function setupEventListeners() {
 
     // Session management
     document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'copySessionIdBtn') {
+            e.preventDefault();
+            copySessionId();
+        }
+    });
+
+    // Session management
+    document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'createSessionBtn') {
             showSessionCreation();
         }
@@ -330,6 +338,11 @@ function showActiveSession() {
     document.getElementById('sessionJoin').style.display = 'none';
     document.getElementById('activeSession').style.display = 'block';
     
+    // Update session ID display
+    if (currentSession && currentSession.id) {
+        document.getElementById('sessionIdDisplay').value = currentSession.id;
+    }
+    
     // Show character sheet in session
     if (currentPlayer && currentPlayer.character) {
         showSessionCharacterSheet(currentPlayer.character);
@@ -341,6 +354,33 @@ function showSessionCharacterSheet(character) {
     if (sessionCharacterSheet) {
         sessionCharacterSheet.innerHTML = characterCardManager.renderCharacterSheet(character);
         sessionCharacterSheet.style.display = 'block';
+    }
+}
+
+function copySessionId() {
+    const sessionIdInput = document.getElementById('sessionIdDisplay');
+    if (sessionIdInput && sessionIdInput.value) {
+        sessionIdInput.select();
+        sessionIdInput.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const copyBtn = document.getElementById('copySessionIdBtn');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'Copied!';
+            copyBtn.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.background = '';
+            }, 2000);
+            
+        } catch (err) {
+            console.error('Failed to copy session ID:', err);
+            alert('Failed to copy session ID. Please copy manually: ' + sessionIdInput.value);
+        }
     }
 }
 
