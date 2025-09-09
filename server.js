@@ -3,7 +3,12 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
+
+// Database imports
+const { initializeDatabase } = require('./database/connection');
+const { Session, Player, Character, DiceRoll, ChatMessage } = require('./database/models');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,74 +26,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// In-memory storage for sessions (in production, use a database)
-const sessions = new Map();
-const characters = new Map();
-
-// Session management
-class GameSession {
-  constructor(id, name, gmId) {
-    this.id = id;
-    this.name = name;
-    this.gmId = gmId;
-    this.players = new Map();
-    this.characters = new Map();
-    this.createdAt = new Date();
-    this.status = 'waiting'; // waiting, active, paused, ended
-    this.settings = {
-      allowSpectators: true,
-      maxPlayers: 6,
-      diceRolls: 'public' // public, gm-only, private
-    };
-  }
-
-  addPlayer(playerId, playerName, characterData = null) {
-    if (this.players.size >= this.settings.maxPlayers) {
-      throw new Error('Session is full');
+// Initialize database on startup
+async function startServer() {
+    try {
+        await initializeDatabase();
+        console.log('Database initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize database:', error);
+        process.exit(1);
     }
-
-    const player = {
-      id: playerId,
-      name: playerName,
-      character: characterData,
-      joinedAt: new Date(),
-      isGM: playerId === this.gmId
-    };
-
-    this.players.set(playerId, player);
-    
-    if (characterData) {
-      this.characters.set(playerId, characterData);
-    }
-
-    return player;
-  }
-
-  removePlayer(playerId) {
-    this.players.delete(playerId);
-    this.characters.delete(playerId);
-  }
-
-  updateCharacter(playerId, characterData) {
-    if (this.characters.has(playerId)) {
-      this.characters.set(playerId, characterData);
-      return true;
-    }
-    return false;
-  }
-
-  getSessionData() {
-    return {
-      id: this.id,
-      name: this.name,
-      gmId: this.gmId,
-      players: Array.from(this.players.values()),
-      characters: Array.from(this.characters.entries()),
-      status: this.status,
-      settings: this.settings,
-      createdAt: this.createdAt
-    };
-  }
 }
 
 // Routes
@@ -97,71 +43,105 @@ app.get('/', (req, res) => {
 });
 
 // API Routes
-app.get('/api/sessions', (req, res) => {
-  const sessionList = Array.from(sessions.values()).map(session => ({
-    id: session.id,
-    name: session.name,
-    playerCount: session.players.size,
-    maxPlayers: session.settings.maxPlayers,
-    status: session.status,
-    createdAt: session.createdAt
-  }));
-  res.json(sessionList);
-});
-
-app.post('/api/sessions', (req, res) => {
-  const { name, gmName } = req.body;
-  const sessionId = require('uuid').v4();
-  
-  const session = new GameSession(sessionId, name, sessionId); // GM ID same as session ID for now
-  sessions.set(sessionId, session);
-  
-  // Add GM as first player
-  session.addPlayer(sessionId, gmName);
-  
-  res.json({
-    sessionId,
-    message: 'Session created successfully'
-  });
-});
-
-app.get('/api/sessions/:id', (req, res) => {
-  const session = sessions.get(req.params.id);
-  if (!session) {
-    return res.status(404).json({ error: 'Session not found' });
-  }
-  res.json(session.getSessionData());
-});
-
-app.post('/api/sessions/:id/join', (req, res) => {
-  const { playerName, characterData } = req.body;
-  const session = sessions.get(req.params.id);
-  
-  if (!session) {
-    return res.status(404).json({ error: 'Session not found' });
-  }
-  
-  if (session.status !== 'waiting') {
-    return res.status(400).json({ error: 'Session is not accepting new players' });
-  }
-  
+app.get('/api/sessions', async (req, res) => {
   try {
-    const playerId = require('uuid').v4();
-    const player = session.addPlayer(playerId, playerName, characterData);
+    const sessions = await Session.findAll();
+    res.json(sessions);
+  } catch (error) {
+    console.error('Error fetching sessions:', error);
+    res.status(500).json({ error: 'Failed to fetch sessions' });
+  }
+});
+
+app.post('/api/sessions', async (req, res) => {
+  try {
+    const { name, gmName } = req.body;
+    
+    // Create session
+    const session = await Session.create(name, uuidv4(), {
+      allowSpectators: true,
+      maxPlayers: 6,
+      diceRolls: 'public'
+    });
+    
+    // Create GM player
+    const gmPlayer = await Player.create(session.id, gmName, true);
+    
+    res.json({
+      sessionId: session.id,
+      playerId: gmPlayer.id,
+      message: 'Session created successfully'
+    });
+  } catch (error) {
+    console.error('Error creating session:', error);
+    res.status(500).json({ error: 'Failed to create session' });
+  }
+});
+
+app.get('/api/sessions/:id', async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    const players = await Player.findBySession(req.params.id);
+    const characters = await Character.findBySession(req.params.id);
+    
+    res.json({
+      ...session,
+      players: players,
+      characters: characters
+    });
+  } catch (error) {
+    console.error('Error fetching session:', error);
+    res.status(500).json({ error: 'Failed to fetch session' });
+  }
+});
+
+app.post('/api/sessions/:id/join', async (req, res) => {
+  try {
+    const { playerName, characterData } = req.body;
+    const sessionId = req.params.id;
+    
+    const session = await Session.findById(sessionId);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    if (session.status !== 'waiting') {
+      return res.status(400).json({ error: 'Session is not accepting new players' });
+    }
+    
+    // Check player count
+    const players = await Player.findBySession(sessionId);
+    const maxPlayers = session.settings.maxPlayers || 6;
+    if (players.length >= maxPlayers) {
+      return res.status(400).json({ error: 'Session is full' });
+    }
+    
+    // Create player
+    const player = await Player.create(sessionId, playerName, false);
+    
+    // Create character if provided
+    if (characterData) {
+      await Character.create(player.id, sessionId, characterData);
+    }
     
     // Notify all players about new player
-    io.to(req.params.id).emit('playerJoined', {
-      playerId,
-      playerName,
-      characterData
+    io.to(sessionId).emit('playerJoined', {
+      playerId: player.id,
+      playerName: player.name,
+      characterData: characterData
     });
     
     res.json({
-      playerId,
+      playerId: player.id,
       message: 'Joined session successfully'
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error joining session:', error);
+    res.status(500).json({ error: 'Failed to join session' });
   }
 });
 
@@ -169,54 +149,87 @@ app.post('/api/sessions/:id/join', (req, res) => {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   
-  socket.on('joinSession', (sessionId) => {
+  socket.on('joinSession', async (sessionId) => {
     socket.join(sessionId);
     console.log(`Socket ${socket.id} joined session ${sessionId}`);
     
     // Send current session state to the new player
-    const session = sessions.get(sessionId);
-    if (session) {
-      socket.emit('sessionState', session.getSessionData());
+    try {
+      const session = await Session.findById(sessionId);
+      if (session) {
+        const players = await Player.findBySession(sessionId);
+        const characters = await Character.findBySession(sessionId);
+        
+        socket.emit('sessionState', {
+          ...session,
+          players: players,
+          characters: characters
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching session state:', error);
     }
   });
   
-  socket.on('updateCharacter', (data) => {
-    const { sessionId, playerId, characterData } = data;
-    const session = sessions.get(sessionId);
-    
-    if (session && session.updateCharacter(playerId, characterData)) {
+  socket.on('updateCharacter', async (data) => {
+    try {
+      const { sessionId, playerId, characterData } = data;
+      
+      // Update character in database
+      await Character.update(playerId, characterData);
+      
       // Broadcast character update to all players in session
       io.to(sessionId).emit('characterUpdated', {
         playerId,
         characterData
       });
+    } catch (error) {
+      console.error('Error updating character:', error);
     }
   });
   
-  socket.on('diceRoll', (data) => {
-    const { sessionId, playerId, rollType, dice, modifier, result } = data;
-    
-    // Broadcast dice roll to all players in session
-    io.to(sessionId).emit('diceRolled', {
-      playerId,
-      rollType,
-      dice,
-      modifier,
-      result,
-      timestamp: new Date()
-    });
+  socket.on('diceRoll', async (data) => {
+    try {
+      const { sessionId, playerId, rollType, dice, modifier, result, diceExpression } = data;
+      
+      // Save dice roll to database
+      await DiceRoll.create(sessionId, playerId, rollType, diceExpression || `${dice}+${modifier}`, result, {
+        dice: dice,
+        modifier: modifier
+      });
+      
+      // Broadcast dice roll to all players in session
+      io.to(sessionId).emit('diceRolled', {
+        playerId,
+        rollType,
+        dice,
+        modifier,
+        result,
+        diceExpression,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error saving dice roll:', error);
+    }
   });
   
-  socket.on('chatMessage', (data) => {
-    const { sessionId, playerId, message, playerName } = data;
-    
-    // Broadcast chat message to all players in session
-    io.to(sessionId).emit('chatMessage', {
-      playerId,
-      playerName,
-      message,
-      timestamp: new Date()
-    });
+  socket.on('chatMessage', async (data) => {
+    try {
+      const { sessionId, playerId, message, playerName } = data;
+      
+      // Save chat message to database
+      await ChatMessage.create(sessionId, playerId, message);
+      
+      // Broadcast chat message to all players in session
+      io.to(sessionId).emit('chatMessage', {
+        playerId,
+        playerName,
+        message,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error saving chat message:', error);
+    }
   });
   
   socket.on('disconnect', () => {
@@ -225,7 +238,9 @@ io.on('connection', (socket) => {
 });
 
 // Start server
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Visit: http://localhost:${PORT}`);
+startServer().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Visit: http://localhost:${PORT}`);
+  });
 });
