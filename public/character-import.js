@@ -10,7 +10,9 @@ class CharacterImporter {
     loadFromStorage() {
         try {
             const stored = localStorage.getItem('pathfinder_characters');
-            return stored ? JSON.parse(stored) : [];
+            const result = stored ? JSON.parse(stored) : [];
+            console.log('Loaded characters from storage:', result.length);
+            return result;
         } catch (error) {
             console.error('Error loading characters from storage:', error);
             return [];
@@ -21,7 +23,7 @@ class CharacterImporter {
     saveToStorage() {
         try {
             localStorage.setItem('pathfinder_characters', JSON.stringify(this.importedCharacters));
-            console.log('Characters saved to storage');
+            console.log('Characters saved to storage, count:', this.importedCharacters.length);
         } catch (error) {
             console.error('Error saving characters to storage:', error);
         }
@@ -37,8 +39,11 @@ class CharacterImporter {
                 character.importedAt = new Date().toISOString();
                 this.importedCharacters.push(character);
                 this.saveToStorage();
-                console.log('Character imported successfully:', character.name);
+                console.log('Character imported successfully:', character.name, 'ID:', character.id);
                 return character;
+            } else {
+                console.error('Failed to parse character');
+                return null;
             }
         } catch (error) {
             console.error('Error importing character:', error);
@@ -54,6 +59,7 @@ class CharacterImporter {
         }
 
         const build = jsonData.build;
+        console.log('Build data:', build);
         
         // Basic character info
         const character = {
@@ -146,12 +152,15 @@ class CharacterImporter {
 
     // Get all imported characters
     getAllCharacters() {
+        console.log('Getting all characters, count:', this.importedCharacters.length);
         return this.importedCharacters;
     }
 
     // Get character by ID
     getCharacterById(id) {
-        return this.importedCharacters.find(char => char.id === id);
+        const character = this.importedCharacters.find(char => char.id === id);
+        console.log('Getting character by ID:', id, 'Found:', !!character);
+        return character;
     }
 
     // Delete character
@@ -160,6 +169,7 @@ class CharacterImporter {
         if (index > -1) {
             this.importedCharacters.splice(index, 1);
             this.saveToStorage();
+            console.log('Character deleted:', id);
             return true;
         }
         return false;
@@ -179,6 +189,7 @@ class CharacterImporter {
     // Validate Pathbuilder JSON
     validatePathbuilderJson(jsonData) {
         try {
+            console.log('Validating JSON data');
             const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
             
             if (!data.success) {
@@ -203,8 +214,10 @@ class CharacterImporter {
                 return { valid: false, error: 'Character abilities are required' };
             }
             
+            console.log('JSON validation successful');
             return { valid: true };
         } catch (error) {
+            console.error('JSON validation error:', error);
             return { valid: false, error: 'Invalid JSON format: ' + error.message };
         }
     }
