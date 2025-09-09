@@ -61,7 +61,7 @@ class CharacterCardManager {
                 this.handleImport();
             }
             if (e.target && e.target.id === 'cancelImportBtn') {
-                const dialog = document.querySelector('.import-dialog');
+                const dialog = e.target.closest('.import-dialog');
                 if (dialog) {
                     document.body.removeChild(dialog);
                 }
@@ -122,12 +122,27 @@ class CharacterCardManager {
         textarea.addEventListener('change', (e) => {
             console.log('Textarea change event, value length:', e.target.value.length);
         });
+
+        // Handle keyup event for additional debugging
+        textarea.addEventListener('keyup', (e) => {
+            console.log('Textarea keyup event, value length:', e.target.value.length);
+        });
     }
 
     handleImport() {
         console.log('Handling import');
-        const jsonInput = document.getElementById('pathbuilderJson');
-        const errorDiv = document.getElementById('importError');
+        
+        // First, let's check if the dialog still exists
+        const dialog = document.querySelector('.import-dialog');
+        console.log('Dialog element:', dialog);
+        
+        if (!dialog) {
+            console.error('Import dialog not found!');
+            return;
+        }
+        
+        const jsonInput = dialog.querySelector('#pathbuilderJson');
+        const errorDiv = dialog.querySelector('#importError');
         
         console.log('JSON input element:', jsonInput);
         console.log('JSON input value:', jsonInput ? jsonInput.value : 'null');
@@ -180,7 +195,6 @@ class CharacterCardManager {
                 console.log('Cards re-rendered, selecting character');
                 this.selectCharacter(character.id);
                 console.log('Character selected, closing dialog');
-                const dialog = document.querySelector('.import-dialog');
                 if (dialog) {
                     document.body.removeChild(dialog);
                 }
