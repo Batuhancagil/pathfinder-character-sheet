@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinder 2e Character Sheet - Multiplayer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Session Management -->
+        <div class="session-panel" id="sessionPanel">
+            <div class="session-header">
+                <h1>Pathfinder 2e Sessions</h1>
+                <button class="btn-primary" id="createSessionBtn">Create Session</button>
+            </div>
+            
+            <div class="session-list" id="sessionList">
+                <!-- Sessions will be loaded here -->
+            </div>
+            
+            <div class="join-session" id="joinSession">
+                <h3>Join Session</h3>
+                <input type="text" id="sessionIdInput" placeholder="Enter Session ID">
+                <input type="text" id="playerNameInput" placeholder="Your Name">
+                <button class="btn-secondary" id="joinSessionBtn">Join Session</button>
+            </div>
+        </div>
+
+        <!-- Character Sheet (hidden initially) -->
+        <div class="character-sheet" id="characterSheet" style="display: none;">
+            <!-- Session Info Bar -->
+            <div class="session-info">
+                <div class="session-details">
+                    <span id="currentSessionName">Session Name</span>
+                    <span id="playerCount">0/6 players</span>
+                </div>
+                <div class="session-controls">
+                    <button class="btn-small" id="leaveSessionBtn">Leave Session</button>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <header class="character-header">
+                <div class="character-basic-info">
+                    <h1 class="character-name" id="characterName">Wharsh</h1>
+                    <div class="character-details">
+                        <span class="level" id="characterLevel">Level 12</span>
+                        <span class="class" id="characterClass">Wizard</span>
+                        <span class="ancestry" id="characterAncestry">Strix (Aiuvarin)</span>
+                    </div>
+                </div>
+                <div class="character-portrait">
+                    <div class="portrait-placeholder">🦅</div>
+                </div>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <nav class="tab-navigation">
+                <button class="tab-button active" data-tab="overview">Overview</button>
+                <button class="tab-button" data-tab="spells">Spells</button>
+                <button class="tab-button" data-tab="equipment">Equipment</button>
+                <button class="tab-button" data-tab="feats">Feats</button>
+                <button class="tab-button" data-tab="chat">Chat</button>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="overview">
+                    <!-- Core Stats Section -->
+                    <section class="stats-section">
+                        <h2>Core Statistics</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-name">AC</div>
+                                <div class="stat-value" id="acValue">25</div>
+                                <div class="stat-modifier">+14 prof +1 dex</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-name">HP</div>
+                                <div class="stat-value" id="hpValue">144</div>
+                                <div class="stat-modifier">8 ancestry + 72 class + 64 con</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-name">Speed</div>
+                                <div class="stat-value" id="speedValue">25</div>
+                                <div class="stat-modifier">ft</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Ability Scores -->
+                    <section class="ability-scores">
+                        <h2>Ability Scores</h2>
+                        <div class="ability-grid">
+                            <div class="ability-card" data-ability="str">
+                                <div class="ability-name">STR</div>
+                                <div class="ability-value" id="strValue">10</div>
+                                <div class="ability-modifier" id="strMod">+0</div>
+                            </div>
+                            <div class="ability-card" data-ability="dex">
+                                <div class="ability-name">DEX</div>
+                                <div class="ability-value" id="dexValue">12</div>
+                                <div class="ability-modifier" id="dexMod">+1</div>
+                            </div>
+                            <div class="ability-card" data-ability="con">
+                                <div class="ability-name">CON</div>
+                                <div class="ability-value" id="conValue">18</div>
+                                <div class="ability-modifier" id="conMod">+4</div>
+                            </div>
+                            <div class="ability-card" data-ability="int">
+                                <div class="ability-name">INT</div>
+                                <div class="ability-value" id="intValue">19</div>
+                                <div class="ability-modifier" id="intMod">+4</div>
+                            </div>
+                            <div class="ability-card" data-ability="wis">
+                                <div class="ability-name">WIS</div>
+                                <div class="ability-value" id="wisValue">16</div>
+                                <div class="ability-modifier" id="wisMod">+3</div>
+                            </div>
+                            <div class="ability-card" data-ability="cha">
+                                <div class="ability-name">CHA</div>
+                                <div class="ability-value" id="chaValue">16</div>
+                                <div class="ability-modifier" id="chaMod">+3</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Saves -->
+                    <section class="saves-section">
+                        <h2>Saving Throws</h2>
+                        <div class="saves-grid">
+                            <div class="save-card">
+                                <div class="save-name">Fortitude</div>
+                                <div class="save-value" id="fortValue">+18</div>
+                                <div class="save-details">+4 prof +4 con +10 level</div>
+                            </div>
+                            <div class="save-card">
+                                <div class="save-name">Reflex</div>
+                                <div class="save-value" id="refValue">+15</div>
+                                <div class="save-details">+4 prof +1 dex +10 level</div>
+                            </div>
+                            <div class="save-card">
+                                <div class="save-name">Will</div>
+                                <div class="save-value" id="willValue">+17</div>
+                                <div class="save-details">+4 prof +3 wis +10 level</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Skills -->
+                    <section class="skills-section">
+                        <h2>Skills</h2>
+                        <div class="skills-list" id="skillsList">
+                            <!-- Skills will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Spells Tab -->
+                <div class="tab-content" id="spells">
+                    <section class="spellcasting-section">
+                        <h2>Spellcasting</h2>
+                        <div class="spell-slots" id="spellSlots">
+                            <!-- Spell slots will be populated by JavaScript -->
+                        </div>
+                        <div class="spells-by-level" id="spellsByLevel">
+                            <!-- Spells by level will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Equipment Tab -->
+                <div class="tab-content" id="equipment">
+                    <section class="equipment-section">
+                        <h2>Equipment & Money</h2>
+                        <div class="money-display" id="moneyDisplay">
+                            <!-- Money will be populated by JavaScript -->
+                        </div>
+                        <div class="equipment-list" id="equipmentList">
+                            <!-- Equipment will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Feats Tab -->
+                <div class="tab-content" id="feats">
+                    <section class="feats-section">
+                        <h2>Feats & Abilities</h2>
+                        <div class="feats-list" id="featsList">
+                            <!-- Feats will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Chat Tab -->
+                <div class="tab-content" id="chat">
+                    <section class="chat-section">
+                        <h2>Session Chat</h2>
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Chat messages will appear here -->
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Type your message...">
+                            <button id="sendMessageBtn">Send</button>
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            <!-- Dice Roller -->
+            <div class="dice-roller" id="diceRoller">
+                <button class="dice-button" onclick="rollD20()">Roll d20</button>
+                <button class="dice-button" onclick="rollDice(4)">Roll d4</button>
+                <button class="dice-button" onclick="rollDice(6)">Roll d6</button>
+                <button class="dice-button" onclick="rollDice(8)">Roll d8</button>
+                <button class="dice-button" onclick="rollDice(10)">Roll d10</button>
+                <button class="dice-button" onclick="rollDice(12)">Roll d12</button>
+                <div class="dice-result" id="diceResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
