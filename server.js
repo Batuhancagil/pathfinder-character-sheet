@@ -33,13 +33,18 @@ async function startServer() {
         console.log('Database initialized successfully');
     } catch (error) {
         console.error('Failed to initialize database:', error);
-        process.exit(1);
+        console.log('Continuing without database...');
     }
 }
 
 // Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // API Routes

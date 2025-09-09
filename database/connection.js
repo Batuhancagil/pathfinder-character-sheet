@@ -3,7 +3,7 @@ require('dotenv').config();
 
 // Database connection configuration
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/pathfinder_chars',
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     max: 20,
     idleTimeoutMillis: 30000,
@@ -31,7 +31,10 @@ async function initializeDatabase() {
         console.log('Database schema initialized successfully');
     } catch (error) {
         console.error('Error initializing database:', error);
-        throw error;
+        // Don't exit in production, just log the error
+        if (process.env.NODE_ENV !== 'production') {
+            throw error;
+        }
     }
 }
 
