@@ -71,6 +71,14 @@ class CharacterCardManager {
 
     showImportDialog() {
         console.log('Showing import dialog');
+        
+        // Check if dialog already exists
+        const existingDialog = document.querySelector('.import-dialog');
+        if (existingDialog) {
+            console.log('Dialog already exists, removing it first');
+            document.body.removeChild(existingDialog);
+        }
+        
         const dialog = document.createElement('div');
         dialog.className = 'import-dialog';
         dialog.innerHTML = `

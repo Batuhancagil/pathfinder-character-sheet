@@ -71,10 +71,6 @@ function setupEventListeners() {
 
     // Character management
     document.addEventListener('click', (e) => {
-        if (e.target && e.target.id === 'importCharacterBtn') {
-            e.preventDefault();
-            characterCardManager.showImportDialog();
-        }
         if (e.target && e.target.id === 'exportCharacterBtn') {
             e.preventDefault();
             exportCurrentCharacter();
