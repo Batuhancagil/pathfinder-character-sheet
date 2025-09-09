@@ -108,12 +108,19 @@ class CharacterCardManager {
             console.log('Paste event detected');
             setTimeout(() => {
                 console.log('Textarea value after paste:', textarea.value);
+                console.log('Textarea value length after paste:', textarea.value.length);
             }, 100);
         });
 
         // Handle input event
         textarea.addEventListener('input', (e) => {
             console.log('Textarea input event, value length:', e.target.value.length);
+            console.log('Textarea value:', e.target.value.substring(0, 100) + '...');
+        });
+
+        // Handle change event
+        textarea.addEventListener('change', (e) => {
+            console.log('Textarea change event, value length:', e.target.value.length);
         });
     }
 
@@ -126,7 +133,18 @@ class CharacterCardManager {
         console.log('JSON input value:', jsonInput ? jsonInput.value : 'null');
         console.log('JSON input value length:', jsonInput ? jsonInput.value.length : 0);
         
-        if (!jsonInput || !jsonInput.value.trim()) {
+        // Try multiple ways to get the value
+        let jsonValue = '';
+        if (jsonInput) {
+            jsonValue = jsonInput.value || jsonInput.textContent || jsonInput.innerText || '';
+            console.log('JSON value from different sources:');
+            console.log('- value:', jsonInput.value);
+            console.log('- textContent:', jsonInput.textContent);
+            console.log('- innerText:', jsonInput.innerText);
+            console.log('- Final jsonValue:', jsonValue);
+        }
+        
+        if (!jsonValue || !jsonValue.trim()) {
             console.log('No JSON input or empty value');
             if (errorDiv) {
                 errorDiv.textContent = 'Please paste your Pathbuilder JSON in the textarea above';
@@ -137,7 +155,7 @@ class CharacterCardManager {
         
         try {
             console.log('Parsing JSON...');
-            const jsonData = JSON.parse(jsonInput.value);
+            const jsonData = JSON.parse(jsonValue);
             console.log('JSON parsed successfully:', jsonData);
             
             const validation = this.importer.validatePathbuilderJson(jsonData);
