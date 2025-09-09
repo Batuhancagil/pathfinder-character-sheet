@@ -17,7 +17,10 @@ pool.on('connect', () => {
 
 pool.on('error', (err) => {
     console.error('Unexpected error on idle client', err);
-    process.exit(-1);
+    // Don't exit in production
+    if (process.env.NODE_ENV !== 'production') {
+        process.exit(-1);
+    }
 });
 
 // Initialize database schema

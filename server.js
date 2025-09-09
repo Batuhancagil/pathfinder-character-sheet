@@ -29,6 +29,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Initialize database on startup
 async function startServer() {
     try {
+        console.log('Starting server...');
+        console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+        
         await initializeDatabase();
         console.log('Database initialized successfully');
     } catch (error) {
@@ -44,7 +47,11 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    database: process.env.DATABASE_URL ? 'Connected' : 'Not connected'
+  });
 });
 
 // API Routes

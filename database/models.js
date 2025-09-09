@@ -121,10 +121,10 @@ class Character {
 
 // Dice Roll Model
 class DiceRoll {
-    static async create(sessionId, playerId, rollType, diceExpression, result, details = {}) {
+    static async create(sessionId, playerId, rollType, diceExpression, rollResult, details = {}) {
         const result = await query(
             'INSERT INTO dice_rolls (session_id, player_id, roll_type, dice_expression, result, details) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [sessionId, playerId, rollType, diceExpression, result, JSON.stringify(details)]
+            [sessionId, playerId, rollType, diceExpression, rollResult, JSON.stringify(details)]
         );
         return result.rows[0];
     }
