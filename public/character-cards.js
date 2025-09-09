@@ -88,11 +88,32 @@ class CharacterCardManager {
 
         document.body.appendChild(dialog);
 
+        // Focus on textarea and select all text
+        const textarea = dialog.querySelector('#pathbuilderJson');
+        if (textarea) {
+            textarea.focus();
+            textarea.select();
+            console.log('Textarea focused and selected');
+        }
+
         // Close on outside click
         dialog.addEventListener('click', (e) => {
             if (e.target === dialog) {
                 document.body.removeChild(dialog);
             }
+        });
+
+        // Handle paste event
+        textarea.addEventListener('paste', (e) => {
+            console.log('Paste event detected');
+            setTimeout(() => {
+                console.log('Textarea value after paste:', textarea.value);
+            }, 100);
+        });
+
+        // Handle input event
+        textarea.addEventListener('input', (e) => {
+            console.log('Textarea input event, value length:', e.target.value.length);
         });
     }
 
@@ -103,11 +124,12 @@ class CharacterCardManager {
         
         console.log('JSON input element:', jsonInput);
         console.log('JSON input value:', jsonInput ? jsonInput.value : 'null');
+        console.log('JSON input value length:', jsonInput ? jsonInput.value.length : 0);
         
         if (!jsonInput || !jsonInput.value.trim()) {
             console.log('No JSON input or empty value');
             if (errorDiv) {
-                errorDiv.textContent = 'Please paste your Pathbuilder JSON';
+                errorDiv.textContent = 'Please paste your Pathbuilder JSON in the textarea above';
                 errorDiv.style.display = 'block';
             }
             return;
