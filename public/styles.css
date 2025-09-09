@@ -1874,3 +1874,275 @@ h2 {
         flex-direction: column;
     }
 }
+
+/* Character Card Clickable */
+.character-card {
+    background: linear-gradient(135deg, #2C1810 0%, #3D2817 100%);
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    user-select: none;
+}
+
+.character-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(139, 69, 19, 0.3);
+    border-color: #D4AF37;
+}
+
+.character-card:active {
+    transform: translateY(-2px);
+}
+
+/* Character Display */
+.character-display {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.character-sheet-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #8B4513;
+}
+
+.character-sheet-header h2 {
+    color: #D4AF37;
+    margin: 0;
+    flex: 1;
+    font-family: 'Cinzel', serif;
+}
+
+/* Character Sheet in Display */
+.character-sheet {
+    background: linear-gradient(135deg, #2C1810 0%, #3D2817 100%);
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.character-basic-info {
+    margin-bottom: 30px;
+}
+
+.info-section h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 8px;
+}
+
+.info-item label {
+    color: #C0C0C0;
+    font-weight: bold;
+}
+
+.info-item span {
+    color: #D4AF37;
+}
+
+.character-abilities-section {
+    margin-bottom: 30px;
+}
+
+.character-abilities-section h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.ability-score {
+    text-align: center;
+    background: rgba(139, 69, 19, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #8B4513;
+}
+
+.ability-name {
+    color: #C0C0C0;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.ability-value {
+    color: #D4AF37;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.ability-modifier {
+    color: #A0A0A0;
+    font-size: 1.1em;
+}
+
+.character-combat-stats {
+    margin-bottom: 30px;
+}
+
+.character-combat-stats h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.combat-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.combat-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 8px;
+    border: 1px solid #8B4513;
+}
+
+.combat-stat label {
+    color: #C0C0C0;
+    font-weight: bold;
+}
+
+.combat-stat span {
+    color: #D4AF37;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.character-feats {
+    margin-bottom: 30px;
+}
+
+.character-feats h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.feats-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.feat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 8px;
+    border: 1px solid #8B4513;
+}
+
+.feat-name {
+    color: #D4AF37;
+    font-weight: bold;
+}
+
+.feat-level {
+    color: #A0A0A0;
+    font-size: 0.9em;
+}
+
+.character-spells {
+    margin-bottom: 30px;
+}
+
+.character-spells h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.spellcaster {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 8px;
+    border: 1px solid #8B4513;
+}
+
+.spellcaster h4 {
+    color: #D4AF37;
+    margin-bottom: 10px;
+}
+
+.spell-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+}
+
+.spell-level {
+    text-align: center;
+    padding: 8px;
+    background: rgba(139, 69, 19, 0.3);
+    border-radius: 6px;
+}
+
+.spell-level .level {
+    display: block;
+    color: #C0C0C0;
+    font-size: 0.8em;
+    margin-bottom: 2px;
+}
+
+.spell-level .slots {
+    display: block;
+    color: #D4AF37;
+    font-weight: bold;
+}
+
+/* Mobile Responsiveness for Character Display */
+@media (max-width: 768px) {
+    .character-sheet-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .abilities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .combat-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .feats-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .spell-levels {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

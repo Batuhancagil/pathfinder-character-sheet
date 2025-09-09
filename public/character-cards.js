@@ -20,15 +20,21 @@ class CharacterCardManager {
         document.addEventListener('click', (e) => {
             if (e.target && e.target.id === 'importCharacterBtn') {
                 e.preventDefault();
+                e.stopPropagation();
+                console.log('Import button clicked');
                 this.showImportDialog();
             }
         });
 
-        // Character selection
+        // Character selection - click on card
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('character-card')) {
-                const characterId = e.target.dataset.characterId;
-                this.selectCharacter(characterId);
+            if (e.target.closest('.character-card')) {
+                const card = e.target.closest('.character-card');
+                const characterId = card.dataset.characterId;
+                if (characterId) {
+                    console.log('Character card clicked:', characterId);
+                    this.selectCharacter(characterId);
+                }
             }
         });
 
@@ -51,6 +57,7 @@ class CharacterCardManager {
         // Import dialog buttons
         document.addEventListener('click', (e) => {
             if (e.target && e.target.id === 'importBtn') {
+                console.log('Import dialog button clicked');
                 this.handleImport();
             }
             if (e.target && e.target.id === 'cancelImportBtn') {
@@ -90,6 +97,7 @@ class CharacterCardManager {
     }
 
     handleImport() {
+        console.log('Handling import');
         const jsonInput = document.getElementById('pathbuilderJson');
         const errorDiv = document.getElementById('importError');
         
@@ -102,8 +110,12 @@ class CharacterCardManager {
         }
         
         try {
+            console.log('Parsing JSON...');
             const jsonData = JSON.parse(jsonInput.value);
+            console.log('JSON parsed successfully');
+            
             const validation = this.importer.validatePathbuilderJson(jsonData);
+            console.log('Validation result:', validation);
             
             if (!validation.valid) {
                 if (errorDiv) {
@@ -113,7 +125,10 @@ class CharacterCardManager {
                 return;
             }
 
+            console.log('Importing character...');
             const character = this.importer.importCharacter(jsonData);
+            console.log('Character imported:', character);
+            
             if (character) {
                 this.renderCharacterCards();
                 this.selectCharacter(character.id);
@@ -135,6 +150,7 @@ class CharacterCardManager {
         if (!this.cardContainer) return;
 
         const characters = this.importer.getAllCharacters();
+        console.log('Rendering character cards, count:', characters.length);
         
         if (characters.length === 0) {
             this.cardContainer.innerHTML = `
@@ -205,7 +221,7 @@ class CharacterCardManager {
             'Wizard': '🧙‍♂️',
             'Cleric': '⛑️',
             'Fighter': '⚔️',
-            'Rogue': '🗡️',
+            'Rogue': '��️',
             'Ranger': '🏹',
             'Paladin': '🛡️',
             'Barbarian': '🔨',
@@ -219,14 +235,19 @@ class CharacterCardManager {
     }
 
     selectCharacter(characterId) {
+        console.log('Selecting character:', characterId);
         const character = this.importer.getCharacterById(characterId);
-        if (!character) return;
+        if (!character) {
+            console.error('Character not found:', characterId);
+            return;
+        }
 
         this.currentCharacter = character;
         this.showCharacterSheet(character);
     }
 
     showCharacterSheet(character) {
+        console.log('Showing character sheet for:', character.name);
         if (!this.characterDisplay) return;
 
         this.characterDisplay.innerHTML = `

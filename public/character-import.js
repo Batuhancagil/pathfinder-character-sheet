@@ -3,6 +3,7 @@ class CharacterImporter {
     constructor() {
         this.supportedClasses = ['Wizard', 'Cleric', 'Fighter', 'Rogue', 'Ranger', 'Paladin', 'Barbarian', 'Bard', 'Druid', 'Monk', 'Sorcerer', 'Warlock'];
         this.importedCharacters = this.loadFromStorage();
+        console.log('CharacterImporter initialized with', this.importedCharacters.length, 'characters');
     }
 
     // Load characters from localStorage
@@ -20,6 +21,7 @@ class CharacterImporter {
     saveToStorage() {
         try {
             localStorage.setItem('pathfinder_characters', JSON.stringify(this.importedCharacters));
+            console.log('Characters saved to storage');
         } catch (error) {
             console.error('Error saving characters to storage:', error);
         }
@@ -28,12 +30,14 @@ class CharacterImporter {
     // Import character from Pathbuilder JSON
     importCharacter(pathbuilderJson) {
         try {
+            console.log('Importing character from JSON');
             const character = this.parsePathbuilderJson(pathbuilderJson);
             if (character) {
                 character.id = this.generateId();
                 character.importedAt = new Date().toISOString();
                 this.importedCharacters.push(character);
                 this.saveToStorage();
+                console.log('Character imported successfully:', character.name);
                 return character;
             }
         } catch (error) {
@@ -44,6 +48,7 @@ class CharacterImporter {
 
     // Parse Pathbuilder JSON format
     parsePathbuilderJson(jsonData) {
+        console.log('Parsing Pathbuilder JSON');
         if (!jsonData.success || !jsonData.build) {
             throw new Error('Invalid Pathbuilder JSON format');
         }
@@ -121,6 +126,7 @@ class CharacterImporter {
             originalData: build
         };
 
+        console.log('Character parsed successfully:', character.name);
         return character;
     }
 
