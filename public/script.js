@@ -3,6 +3,7 @@ let socket;
 let currentSession = null;
 let currentPlayer = null;
 let characterCardManager;
+let currentTab = 'characters';
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup event listeners
     setupEventListeners();
     
-    // Show character selection by default
-    showCharacterSelection();
+    // Show character management by default
+    showTab('characters');
 });
 
 function initializeSocket() {
@@ -60,93 +61,192 @@ function initializeSocket() {
 }
 
 function setupEventListeners() {
+    // Main navigation tabs
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('nav-tab')) {
+            const tab = e.target.dataset.tab;
+            showTab(tab);
+        }
+    });
+
+    // Character management
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'importCharacterBtn') {
+            e.preventDefault();
+            characterCardManager.showImportDialog();
+        }
+        if (e.target && e.target.id === 'exportCharacterBtn') {
+            e.preventDefault();
+            exportCurrentCharacter();
+        }
+    });
+
     // Session management
-    const createSessionBtn = document.getElementById('createSessionBtn');
-    if (createSessionBtn) {
-        createSessionBtn.addEventListener('click', createSession);
-    }
-    
-    const joinSessionBtn = document.getElementById('joinSessionBtn');
-    if (joinSessionBtn) {
-        joinSessionBtn.addEventListener('click', joinSession);
-    }
-    
-    const leaveSessionBtn = document.getElementById('leaveSessionBtn');
-    if (leaveSessionBtn) {
-        leaveSessionBtn.addEventListener('click', leaveSession);
-    }
-    
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'createSessionBtn') {
+            showSessionCreation();
+        }
+        if (e.target && e.target.id === 'joinSessionBtn') {
+            showSessionJoin();
+        }
+        if (e.target && e.target.id === 'confirmCreateSessionBtn') {
+            createSession();
+        }
+        if (e.target && e.target.id === 'cancelCreateSessionBtn') {
+            hideSessionForms();
+        }
+        if (e.target && e.target.id === 'confirmJoinSessionBtn') {
+            joinSession();
+        }
+        if (e.target && e.target.id === 'cancelJoinSessionBtn') {
+            hideSessionForms();
+        }
+        if (e.target && e.target.id === 'leaveSessionBtn') {
+            leaveSession();
+        }
+    });
+
     // Chat
-    const sendMessageBtn = document.getElementById('sendMessageBtn');
-    if (sendMessageBtn) {
-        sendMessageBtn.addEventListener('click', sendChatMessage);
-    }
-    
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput) {
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
-    }
-    
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'sendMessageBtn') {
+            sendChatMessage();
+        }
+    });
+
+    document.addEventListener('keypress', (e) => {
+        if (e.target && e.target.id === 'chatInput' && e.key === 'Enter') {
+            sendChatMessage();
+        }
+    });
+
     // Dice rolling
-    const rollDiceBtn = document.getElementById('rollDiceBtn');
-    if (rollDiceBtn) {
-        rollDiceBtn.addEventListener('click', rollCustomDice);
-    }
-    
-    const diceExpression = document.getElementById('diceExpression');
-    if (diceExpression) {
-        diceExpression.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                rollCustomDice();
-            }
-        });
-    }
-    
-    // Tab navigation
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            switchTab(e.target.dataset.tab);
-        });
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'rollDiceBtn') {
+            rollCustomDice();
+        }
+    });
+
+    document.addEventListener('keypress', (e) => {
+        if (e.target && e.target.id === 'diceExpression' && e.key === 'Enter') {
+            rollCustomDice();
+        }
     });
 }
 
-function showCharacterSelection() {
-    document.getElementById('characterSelectionPanel').style.display = 'block';
-    document.getElementById('characterDisplay').style.display = 'none';
-    document.getElementById('sessionPanel').style.display = 'none';
-    document.getElementById('characterSheet').style.display = 'none';
+// Tab Management
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all nav tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const selectedTab = document.getElementById(`${tabName}-tab`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Add active class to selected nav tab
+    const selectedNavTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (selectedNavTab) {
+        selectedNavTab.classList.add('active');
+    }
+    
+    currentTab = tabName;
+    
+    // Update character selects in session forms
+    if (tabName === 'sessions') {
+        updateCharacterSelects();
+    }
 }
 
-function showCharacterDisplay() {
-    document.getElementById('characterSelectionPanel').style.display = 'none';
-    document.getElementById('characterDisplay').style.display = 'block';
-    document.getElementById('sessionPanel').style.display = 'none';
-    document.getElementById('characterSheet').style.display = 'none';
-}
-
-function showSessionPanel() {
-    document.getElementById('characterSelectionPanel').style.display = 'none';
-    document.getElementById('characterDisplay').style.display = 'none';
-    document.getElementById('sessionPanel').style.display = 'block';
-    document.getElementById('characterSheet').style.display = 'none';
-}
-
-function showCharacterSheet() {
-    document.getElementById('characterSelectionPanel').style.display = 'none';
-    document.getElementById('characterDisplay').style.display = 'none';
-    document.getElementById('sessionPanel').style.display = 'none';
-    document.getElementById('characterSheet').style.display = 'block';
+// Character Management Functions
+function exportCurrentCharacter() {
+    const currentChar = characterCardManager.getCurrentCharacter();
+    if (currentChar) {
+        const exportData = characterCardManager.importer.exportCharacter(currentChar.id);
+        if (exportData) {
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentChar.name}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    } else {
+        alert('No character selected to export');
+    }
 }
 
 // Session Management Functions
+function showSessionCreation() {
+    document.getElementById('sessionCreation').style.display = 'block';
+    document.getElementById('sessionJoin').style.display = 'none';
+    updateCharacterSelects();
+}
+
+function showSessionJoin() {
+    document.getElementById('sessionJoin').style.display = 'block';
+    document.getElementById('sessionCreation').style.display = 'none';
+    updateCharacterSelects();
+}
+
+function hideSessionForms() {
+    document.getElementById('sessionCreation').style.display = 'none';
+    document.getElementById('sessionJoin').style.display = 'none';
+}
+
+function updateCharacterSelects() {
+    const characters = characterCardManager.importer.getAllCharacters();
+    const createSelect = document.getElementById('characterSelect');
+    const joinSelect = document.getElementById('joinCharacterSelect');
+    
+    // Clear existing options
+    if (createSelect) {
+        createSelect.innerHTML = '<option value="">Choose a character...</option>';
+    }
+    if (joinSelect) {
+        joinSelect.innerHTML = '<option value="">Choose a character...</option>';
+    }
+    
+    // Add character options
+    characters.forEach(char => {
+        const option = document.createElement('option');
+        option.value = char.id;
+        option.textContent = `${char.name} - ${char.class} ${char.level}`;
+        
+        if (createSelect) {
+            createSelect.appendChild(option.cloneNode(true));
+        }
+        if (joinSelect) {
+            joinSelect.appendChild(option.cloneNode(true));
+        }
+    });
+}
+
 async function createSession() {
-    const sessionName = document.getElementById('sessionNameInput')?.value || 'New Session';
-    const gmName = prompt('Enter your name as GM:') || 'GM';
+    const sessionName = document.getElementById('sessionNameInput').value;
+    const gmName = document.getElementById('gmNameInput').value;
+    const characterId = document.getElementById('characterSelect').value;
+    
+    if (!sessionName || !gmName || !characterId) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    const character = characterCardManager.importer.getCharacterById(characterId);
+    if (!character) {
+        alert('Character not found');
+        return;
+    }
     
     try {
         const response = await fetch('/api/sessions', {
@@ -156,7 +256,8 @@ async function createSession() {
             },
             body: JSON.stringify({
                 name: sessionName,
-                gmName: gmName
+                gmName: gmName,
+                characterData: character
             })
         });
         
@@ -164,12 +265,12 @@ async function createSession() {
         
         if (response.ok) {
             currentSession = { id: data.sessionId, name: sessionName };
-            currentPlayer = { id: data.playerId, name: gmName, isGM: true };
+            currentPlayer = { id: data.playerId, name: gmName, isGM: true, character: character };
             
             // Join the session via socket
             socket.emit('joinSession', data.sessionId);
             
-            showCharacterSheet();
+            showActiveSession();
             updateSessionUI();
         } else {
             alert('Error creating session: ' + data.error);
@@ -181,11 +282,18 @@ async function createSession() {
 }
 
 async function joinSession() {
-    const sessionId = document.getElementById('sessionIdInput')?.value;
-    const playerName = document.getElementById('playerNameInput')?.value;
+    const sessionId = document.getElementById('sessionIdInput').value;
+    const playerName = document.getElementById('playerNameInput').value;
+    const characterId = document.getElementById('joinCharacterSelect').value;
     
-    if (!sessionId || !playerName) {
-        alert('Please enter both Session ID and Player Name');
+    if (!sessionId || !playerName || !characterId) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    const character = characterCardManager.importer.getCharacterById(characterId);
+    if (!character) {
+        alert('Character not found');
         return;
     }
     
@@ -196,7 +304,8 @@ async function joinSession() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                playerName: playerName
+                playerName: playerName,
+                characterData: character
             })
         });
         
@@ -204,12 +313,12 @@ async function joinSession() {
         
         if (response.ok) {
             currentSession = { id: sessionId };
-            currentPlayer = { id: data.playerId, name: playerName, isGM: false };
+            currentPlayer = { id: data.playerId, name: playerName, isGM: false, character: character };
             
             // Join the session via socket
             socket.emit('joinSession', sessionId);
             
-            showCharacterSheet();
+            showActiveSession();
             updateSessionUI();
         } else {
             alert('Error joining session: ' + data.error);
@@ -220,10 +329,30 @@ async function joinSession() {
     }
 }
 
+function showActiveSession() {
+    document.getElementById('sessionCreation').style.display = 'none';
+    document.getElementById('sessionJoin').style.display = 'none';
+    document.getElementById('activeSession').style.display = 'block';
+    
+    // Show character sheet in session
+    if (currentPlayer && currentPlayer.character) {
+        showSessionCharacterSheet(currentPlayer.character);
+    }
+}
+
+function showSessionCharacterSheet(character) {
+    const sessionCharacterSheet = document.getElementById('sessionCharacterSheet');
+    if (sessionCharacterSheet) {
+        sessionCharacterSheet.innerHTML = characterCardManager.renderCharacterSheet(character);
+        sessionCharacterSheet.style.display = 'block';
+    }
+}
+
 function leaveSession() {
     currentSession = null;
     currentPlayer = null;
-    showCharacterSelection();
+    document.getElementById('activeSession').style.display = 'none';
+    hideSessionForms();
 }
 
 function updateSessionUI() {
@@ -379,33 +508,6 @@ function displayDiceRoll(data) {
         `;
         chatMessages.appendChild(messageEl);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-}
-
-// Tab Navigation
-function switchTab(tabName) {
-    // Hide all tab contents
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    // Remove active class from all tab buttons
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-        button.classList.remove('active');
-    });
-    
-    // Show selected tab content
-    const selectedTab = document.getElementById(tabName);
-    if (selectedTab) {
-        selectedTab.classList.add('active');
-    }
-    
-    // Add active class to selected tab button
-    const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
-    if (selectedButton) {
-        selectedButton.classList.add('active');
     }
 }
 

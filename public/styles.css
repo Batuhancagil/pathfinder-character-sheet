@@ -1407,3 +1407,470 @@ h2 {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+/* Main Navigation */
+.main-navigation {
+    background: linear-gradient(135deg, #2C1810 0%, #3D2817 100%);
+    border-bottom: 3px solid #8B4513;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand h1 {
+    color: #D4AF37;
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 1.8em;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-tab {
+    background: transparent;
+    border: 2px solid #8B4513;
+    color: #C0C0C0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1em;
+}
+
+.nav-tab:hover {
+    background: rgba(139, 69, 19, 0.3);
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+.nav-tab.active {
+    background: #8B4513;
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    min-height: calc(100vh - 80px);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Character Management Tab */
+.character-selection-panel {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.character-selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #8B4513;
+}
+
+.character-selection-header h2 {
+    color: #D4AF37;
+    margin: 0;
+    font-family: 'Cinzel', serif;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Session Management Tab */
+.session-panel {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #8B4513;
+}
+
+.session-header h2 {
+    color: #D4AF37;
+    margin: 0;
+    font-family: 'Cinzel', serif;
+}
+
+.session-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Session Forms */
+.session-creation,
+.session-join {
+    background: linear-gradient(135deg, #2C1810 0%, #3D2817 100%);
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.session-creation h3,
+.session-join h3 {
+    color: #D4AF37;
+    margin-bottom: 20px;
+    font-family: 'Cinzel', serif;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #C0C0C0;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    background: #1A1A1A;
+    border: 1px solid #8B4513;
+    border-radius: 8px;
+    color: #C0C0C0;
+    font-size: 1em;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #D4AF37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Active Session */
+.active-session {
+    background: linear-gradient(135deg, #2C1810 0%, #3D2817 100%);
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #8B4513;
+}
+
+.session-info h3 {
+    color: #D4AF37;
+    margin: 0;
+    font-family: 'Cinzel', serif;
+}
+
+.session-details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.session-details span {
+    color: #C0C0C0;
+    font-weight: bold;
+}
+
+/* Players List */
+.players-list {
+    margin-bottom: 30px;
+}
+
+.players-list h4 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(139, 69, 19, 0.2);
+    border: 1px solid #8B4513;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.player-name {
+    color: #C0C0C0;
+    font-weight: bold;
+}
+
+.player-character {
+    color: #A0A0A0;
+    font-size: 0.9em;
+}
+
+.player-status {
+    color: #D4AF37;
+    font-size: 0.8em;
+}
+
+/* Session Character Sheet */
+.session-character-sheet {
+    background: linear-gradient(135deg, #1A1A1A 0%, #2C1810 100%);
+    border: 1px solid #8B4513;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+/* Chat Section */
+.chat-section {
+    background: rgba(139, 69, 19, 0.1);
+    border: 1px solid #8B4513;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.chat-section h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.chat-messages {
+    height: 200px;
+    overflow-y: auto;
+    background: #1A1A1A;
+    border: 1px solid #8B4513;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 6px;
+}
+
+.chat-sender {
+    color: #D4AF37;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.chat-text {
+    color: #C0C0C0;
+}
+
+.chat-time {
+    color: #A0A0A0;
+    font-size: 0.8em;
+    float: right;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    background: #1A1A1A;
+    border: 1px solid #8B4513;
+    border-radius: 6px;
+    color: #C0C0C0;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    background: #8B4513;
+    border: none;
+    border-radius: 6px;
+    color: #C0C0C0;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.chat-input button:hover {
+    background: #D4AF37;
+    color: #2C1810;
+}
+
+/* Dice Roller */
+.dice-roller {
+    background: rgba(139, 69, 19, 0.1);
+    border: 1px solid #8B4513;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.dice-roller h3 {
+    color: #D4AF37;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+}
+
+.dice-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.dice-input input {
+    flex: 1;
+    padding: 10px;
+    background: #1A1A1A;
+    border: 1px solid #8B4513;
+    border-radius: 6px;
+    color: #C0C0C0;
+}
+
+.dice-input button {
+    padding: 10px 20px;
+    background: #8B4513;
+    border: none;
+    border-radius: 6px;
+    color: #C0C0C0;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.dice-input button:hover {
+    background: #D4AF37;
+    color: #2C1810;
+}
+
+.dice-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.dice-button {
+    padding: 8px 15px;
+    background: transparent;
+    border: 1px solid #8B4513;
+    border-radius: 6px;
+    color: #C0C0C0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dice-button:hover {
+    background: #8B4513;
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+.dice-result {
+    background: #1A1A1A;
+    border: 1px solid #8B4513;
+    border-radius: 6px;
+    padding: 15px;
+    color: #C0C0C0;
+}
+
+.dice-result-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #D4AF37;
+    margin-bottom: 10px;
+}
+
+.dice-rolls {
+    font-size: 0.9em;
+}
+
+.dice-roll {
+    color: #D4AF37;
+    margin-right: 10px;
+}
+
+.dice-modifier {
+    color: #A0A0A0;
+    margin-right: 10px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .main-navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .nav-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .character-selection-header,
+    .session-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .selection-actions,
+    .session-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .session-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .dice-buttons {
+        justify-content: center;
+    }
+    
+    .chat-input {
+        flex-direction: column;
+    }
+    
+    .dice-input {
+        flex-direction: column;
+    }
+}
