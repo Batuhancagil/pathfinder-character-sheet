@@ -216,34 +216,32 @@ class CharacterCardManager {
                 return;
             }
         
-        const jsonInput = dialog.querySelector('#pathbuilderJson');
-        const errorDiv = dialog.querySelector('#importError');
-        
-        console.log('JSON input element:', jsonInput);
-        console.log('JSON input value:', jsonInput ? jsonInput.value : 'null');
-        console.log('JSON input value length:', jsonInput ? jsonInput.value.length : 0);
-        
-        // Try multiple ways to get the value
-        let jsonValue = '';
-        if (jsonInput) {
-            jsonValue = jsonInput.value || jsonInput.textContent || jsonInput.innerText || '';
-            console.log('JSON value from different sources:');
-            console.log('- value:', jsonInput.value);
-            console.log('- textContent:', jsonInput.textContent);
-            console.log('- innerText:', jsonInput.innerText);
-            console.log('- Final jsonValue:', jsonValue);
-        }
-        
-        if (!jsonValue || !jsonValue.trim()) {
-            console.log('No JSON input or empty value');
-            if (errorDiv) {
-                errorDiv.textContent = 'Please paste your Pathbuilder JSON in the textarea above';
-                errorDiv.style.display = 'block';
+            const jsonInput = dialog.querySelector('#pathbuilderJson');
+            const errorDiv = dialog.querySelector('#importError');
+            
+            console.log('JSON input element:', jsonInput);
+            console.log('JSON input value:', jsonInput ? jsonInput.value : 'null');
+            console.log('JSON input value length:', jsonInput ? jsonInput.value.length : 0);
+            
+            // Try multiple ways to get the value
+            let jsonValue = '';
+            if (jsonInput) {
+                jsonValue = jsonInput.value || jsonInput.textContent || jsonInput.innerText || '';
+                console.log('JSON value from different sources:');
+                console.log('- value:', jsonInput.value);
+                console.log('- textContent:', jsonInput.textContent);
+                console.log('- innerText:', jsonInput.innerText);
+                console.log('- Final jsonValue:', jsonValue);
             }
-            return;
-        }
-        
-        try {
+            
+            if (!jsonValue || !jsonValue.trim()) {
+                console.log('No JSON input or empty value');
+                if (errorDiv) {
+                    errorDiv.textContent = 'Please paste your Pathbuilder JSON in the textarea above';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
             console.log('Parsing JSON...');
             console.log('JSON value to parse:', jsonValue);
             
