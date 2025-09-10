@@ -119,9 +119,10 @@ app.post('/api/auth/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'Failed to register user',
-      details: error.message 
+      details: error.message || 'Unknown error'
     });
   }
 });

@@ -4,10 +4,12 @@ require('dotenv').config();
 // Database connection configuration
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/pathfinder_chars',
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000, // Increased timeout for Railway
+    statement_timeout: 30000, // 30 seconds
+    query_timeout: 30000, // 30 seconds
 });
 
 // Check if DATABASE_URL is set
