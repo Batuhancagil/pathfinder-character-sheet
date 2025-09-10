@@ -2858,6 +2858,9 @@ h2 {
     position: absolute;
     left: 0;
     top: 0;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    height: auto;
 }
 
 .character-sheet-header h2 {

@@ -66,7 +66,7 @@ class CharacterCardManager {
 
         // Character selection - click on card
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.character-card')) {
+            if (e.target.closest('.character-card') && !e.target.closest('.character-sheet-tabs')) {
                 const card = e.target.closest('.character-card');
                 const characterId = card.dataset.characterId;
                 if (characterId) {
@@ -107,9 +107,11 @@ class CharacterCardManager {
 
         // Tab switching - use event delegation
         document.addEventListener('click', (e) => {
-            if (e.target && e.target.classList.contains('tab-button')) {
+            if (e.target && e.target.classList.contains('tab-button') && e.target.closest('.character-sheet-tabs')) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
+                console.log('Tab button clicked:', e.target.dataset.tab);
                 this.handleTabSwitch(e.target);
             }
         });
@@ -355,7 +357,7 @@ class CharacterCardManager {
                         <p class="character-class">${summary.class} ${summary.level}</p>
                         <p class="character-ancestry">${summary.ancestry} ${summary.heritage}</p>
                     </div>
-                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">🗑</button>
+                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">✕</button>
                 </div>
                 <div class="character-stats">
                     <div class="stat">
