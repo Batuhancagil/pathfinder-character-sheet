@@ -306,24 +306,62 @@ h2 {
     margin-bottom: 15px;
 }
 
-.stat-item {
+.stat {
     text-align: center;
-    background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.2);
     padding: 8px;
     border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stat-label {
     font-size: 0.8em;
-    color: #A0A0A0;
+            color: #A0A0A0;
     margin-bottom: 2px;
+            display: block;
 }
 
 .stat-value {
     font-size: 1.2em;
-    color: #D4AF37;
+            color: #D4AF37;
     font-weight: bold;
+            display: block;
 }
+
+.character-abilities {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.ability {
+    text-align: center;
+            background: rgba(0, 0, 0, 0.1);
+    padding: 6px;
+    border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ability-name {
+    font-size: 0.7em;
+            color: #A0A0A0;
+            display: block;
+    margin-bottom: 2px;
+}
+
+.ability-score {
+    font-size: 1em;
+            color: #3498db;
+    font-weight: bold;
+    display: block;
+}
+
+.ability-modifier {
+    font-size: 0.8em;
+            color: #e74c3c;
+            font-weight: 600;
+    display: block;
+        }
 
         /* Character Sheet Tabs */
         .character-sheet-tabs {
@@ -410,14 +448,154 @@ h2 {
             transform: translateY(-1px);
 }
 
-.character-sheet-header h2 {
-    margin: 0;
+        .character-sheet-header h2 {
+            margin: 0;
             color: #f39c12;
             width: 100%;
-    text-align: center;
-    font-family: 'Cinzel', serif;
+            text-align: center;
+            font-family: 'Cinzel', serif;
             font-size: 2rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Character Sheet Content */
+        .character-basic-info {
+            margin-bottom: 30px;
+        }
+
+        .info-section h3 {
+            font-family: 'Cinzel', serif;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-item label {
+            color: #bdc3c7;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .info-item span {
+            color: #ecf0f1;
+            font-weight: bold;
+        }
+
+        .character-abilities-section {
+            margin-bottom: 30px;
+        }
+
+        .character-abilities-section h3 {
+            font-family: 'Cinzel', serif;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
+        }
+
+        .abilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .ability-score {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .ability-score:hover {
+            transform: translateY(-2px);
+        }
+
+        .ability-score .ability-name {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .ability-score .ability-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .ability-score .ability-modifier {
+            font-size: 1rem;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .character-combat-stats {
+            margin-bottom: 30px;
+        }
+
+        .character-combat-stats h3 {
+            font-family: 'Cinzel', serif;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
+        }
+
+        .combat-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .combat-stat {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .combat-stat label {
+            color: #bdc3c7;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .combat-stat span {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1rem;
         }
 
         /* Mobile Responsiveness */
