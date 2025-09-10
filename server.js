@@ -8,7 +8,11 @@ require('dotenv').config();
 
 // Database imports
 const { initializeDatabase } = require('./database/connection');
-const { User, Session, Player, Character, DiceRoll, ChatMessage } = require('./database/models');
+const { Session, Player, Character, DiceRoll, ChatMessage } = require('./database/models');
+const SimpleAuth = require('./simple-auth');
+
+// Initialize simple auth
+const auth = new SimpleAuth();
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +39,7 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  const decoded = User.verifyToken(token);
+  const decoded = auth.verifyToken(token);
   if (!decoded) {
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
@@ -77,22 +81,29 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
     
-    // Check if user already exists
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
-      return res.status(400).json({ error: 'User already exists with this email' });
+    console.log('Registration attempt:', { name, email, password: password ? '***' : 'missing' });
+    
+    // Validate input
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' });
     }
     
-    // Create user
-    const user = await User.create({
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+    
+    // Create user using simple auth
+    const user = await auth.createUser({
       name,
       email,
       password,
       provider: 'email'
     });
     
+    console.log('User created successfully:', user.id);
+    
     // Generate token
-    const token = User.generateToken(user);
+    const token = auth.generateToken(user);
     
     res.json({
       success: true,
@@ -106,7 +117,10 @@ app.post('/api/auth/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Failed to register user' });
+    res.status(500).json({ 
+      error: 'Failed to register user',
+      details: error.message 
+    });
   }
 });
 
@@ -115,19 +129,19 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     
     // Find user
-    const user = await User.findByEmail(email);
+    const user = await auth.findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
     // Verify password
-    const isValidPassword = await User.verifyPassword(user, password);
+    const isValidPassword = await auth.verifyPassword(user, password);
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
     // Generate token
-    const token = User.generateToken(user);
+    const token = auth.generateToken(user);
     
     res.json({
       success: true,
@@ -150,23 +164,19 @@ app.post('/api/auth/google', async (req, res) => {
     const { id, name, email, picture, provider } = req.body;
     
     // Check if user exists
-    let user = await User.findByGoogleId(id);
+    let user = await auth.findUserByGoogleId(id);
     
     if (!user) {
       // Check if user exists with this email
-      user = await User.findByEmail(email);
+      user = await auth.findUserByEmail(email);
       if (user) {
         // Update existing user with Google ID
-        await query(
-          'UPDATE users SET google_id = $1, picture_url = $2, provider = $3 WHERE id = $4',
-          [id, picture, provider, user.id]
-        );
         user.google_id = id;
         user.picture_url = picture;
         user.provider = provider;
       } else {
         // Create new user
-        user = await User.create({
+        user = await auth.createUser({
           googleId: id,
           name,
           email,
@@ -177,7 +187,7 @@ app.post('/api/auth/google', async (req, res) => {
     }
     
     // Generate token
-    const token = User.generateToken(user);
+    const token = auth.generateToken(user);
     
     res.json({
       success: true,
@@ -298,11 +308,11 @@ app.post('/api/sessions/:id/join', async (req, res) => {
   }
 });
 
-// Characters API
+// Characters API (simplified for demo)
 app.get('/api/characters', authenticateToken, async (req, res) => {
   try {
-    const characters = await Character.findByUser(req.user.id);
-    res.json(characters);
+    // For now, return empty array since we don't have database
+    res.json([]);
   } catch (error) {
     console.error('Error fetching characters:', error);
     res.status(500).json({ error: 'Failed to fetch characters' });
@@ -313,8 +323,13 @@ app.post('/api/characters', authenticateToken, async (req, res) => {
   try {
     const { characterData } = req.body;
     
-    const character = await Character.create(req.user.id, null, null, characterData);
-    res.json(character);
+    // For now, just return success since we don't have database
+    res.json({
+      id: Date.now(),
+      user_id: req.user.id,
+      character_data: characterData,
+      created_at: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Error creating character:', error);
     res.status(500).json({ error: 'Failed to create character' });

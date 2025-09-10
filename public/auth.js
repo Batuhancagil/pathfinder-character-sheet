@@ -52,8 +52,13 @@ class AuthManager {
         if (typeof google !== 'undefined') {
             google.accounts.id.initialize({
                 client_id: 'YOUR_GOOGLE_CLIENT_ID', // Replace with actual client ID
-                callback: this.handleGoogleCallback.bind(this)
+                callback: this.handleGoogleCallback.bind(this),
+                auto_select: false,
+                cancel_on_tap_outside: true
             });
+        } else {
+            // Retry after a short delay if Google hasn't loaded yet
+            setTimeout(() => this.initializeGoogleAuth(), 100);
         }
     }
 
@@ -71,11 +76,12 @@ class AuthManager {
 
     async handleGoogleAuth() {
         try {
-            if (typeof google !== 'undefined') {
+            if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
                 google.accounts.id.prompt();
             } else {
                 console.error('Google Auth not loaded');
-                alert('Google authentication is not available. Please try again later.');
+                // For now, show a message about Google Auth setup
+                alert('Google authentication requires setup. Please use email registration for now.');
             }
         } catch (error) {
             console.error('Google Auth error:', error);
