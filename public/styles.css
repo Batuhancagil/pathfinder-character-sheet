@@ -1501,8 +1501,8 @@ h2 {
 
 /* Character Sheet in Display */
 .character-sheet {
-    background: linear-gradient(135deg, #FDF5E6 0%, #F5E6D3 50%, #E6D3B7 100%);
-    border: 3px solid #8B4513;
+    background: linear-gradient(135deg, #F1EFEE 0%, #E8E6E3 50%, #DDD9D6 100%);
+    border: 3px solid #341D12;
     border-radius: 15px;
     padding: 30px;
     box-shadow: 
@@ -2850,16 +2850,155 @@ h2 {
     align-items: center;
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid #ecf0f1;
+    border-bottom: 2px solid #341D12;
+    position: relative;
+}
+
+.character-sheet-header .btn {
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 .character-sheet-header h2 {
     margin: 0;
-    color: #2c3e50;
+    color: #341D12;
+    width: 100%;
+    text-align: center;
 }
 
 .back-button {
     margin-right: 1rem;
+}
+
+/* Character Sheet Tabs */
+.character-sheet-tabs {
+    background: #F1EFEE;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.character-sheet-tabs .tab-navigation {
+    background: linear-gradient(135deg, #341D12 0%, #4A2C1A 100%);
+    display: flex;
+    border-bottom: 2px solid #341D12;
+    overflow-x: auto;
+}
+
+.character-sheet-tabs .tab-button {
+    background: transparent;
+    border: none;
+    color: #F1EFEE;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: 120px;
+    border-bottom: 3px solid transparent;
+}
+
+.character-sheet-tabs .tab-button:hover {
+    background: rgba(241, 239, 238, 0.1);
+    color: #D4AF37;
+}
+
+.character-sheet-tabs .tab-button.active {
+    background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
+    color: #341D12;
+    border-bottom-color: #F1EFEE;
+    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.character-sheet-tabs .tab-content {
+    display: none;
+    padding: 30px;
+    background: #F1EFEE;
+    min-height: 500px;
+}
+
+.character-sheet-tabs .tab-content.active {
+    display: block;
+}
+
+/* Tab Content Styling */
+.character-sheet-tabs .character-sheet {
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.character-sheet-tabs .character-sheet h3 {
+    color: #341D12;
+    border-bottom: 2px solid #D4AF37;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-family: 'Cinzel', serif;
+}
+
+.character-sheet-tabs .info-item,
+.character-sheet-tabs .combat-stat,
+.character-sheet-tabs .feat-item {
+    background: rgba(52, 29, 18, 0.1);
+    border: 1px solid rgba(52, 29, 18, 0.2);
+}
+
+.character-sheet-tabs .info-item label,
+.character-sheet-tabs .combat-stat label {
+    color: #341D12;
+    font-weight: bold;
+}
+
+.character-sheet-tabs .info-item span,
+.character-sheet-tabs .combat-stat span {
+    color: #D4AF37;
+}
+
+.character-sheet-tabs .ability-score {
+    background: rgba(52, 29, 18, 0.1);
+    border: 1px solid rgba(52, 29, 18, 0.2);
+}
+
+.character-sheet-tabs .ability-name {
+    color: #341D12;
+}
+
+.character-sheet-tabs .ability-value {
+    color: #D4AF37;
+}
+
+.character-sheet-tabs .ability-modifier {
+    color: #8B4513;
+}
+
+.character-sheet-tabs .feat-name {
+    color: #D4AF37;
+    font-weight: bold;
+}
+
+.character-sheet-tabs .feat-level {
+    color: #8B4513;
+}
+
+/* Mobile Responsiveness for Tabs */
+@media (max-width: 768px) {
+    .character-sheet-tabs .tab-navigation {
+        flex-direction: column;
+    }
+    
+    .character-sheet-tabs .tab-button {
+        min-width: auto;
+        text-align: center;
+    }
+    
+    .character-sheet-tabs .tab-content {
+        padding: 20px;
+        min-height: 400px;
+    }
 }
 
 .character-sheet-content {

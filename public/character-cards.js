@@ -419,9 +419,35 @@ class CharacterCardManager {
                 <h2>${summary.name} - ${summary.class} ${summary.level}</h2>
             </div>
             <div class="character-sheet-content">
-                ${this.renderCharacterSheet(character)}
+                <div class="character-sheet-tabs">
+                    <div class="tab-navigation">
+                        <button class="tab-button active" data-tab="overview">Overview</button>
+                        <button class="tab-button" data-tab="abilities">Abilities & Feats</button>
+                        <button class="tab-button" data-tab="magic">Magic & Spells</button>
+                        <button class="tab-button" data-tab="equipment">Equipment & Inventory</button>
+                        <button class="tab-button" data-tab="notes">Notes & Backstory</button>
+                    </div>
+                    <div class="tab-content active" id="overview-tab">
+                        ${this.renderOverviewTab(character)}
+                    </div>
+                    <div class="tab-content" id="abilities-tab">
+                        ${this.renderAbilitiesTab(character)}
+                    </div>
+                    <div class="tab-content" id="magic-tab">
+                        ${this.renderMagicTab(character)}
+                    </div>
+                    <div class="tab-content" id="equipment-tab">
+                        ${this.renderEquipmentTab(character)}
+                    </div>
+                    <div class="tab-content" id="notes-tab">
+                        ${this.renderNotesTab(character)}
+                    </div>
+                </div>
             </div>
         `;
+
+        // Setup tab switching
+        this.setupTabSwitching();
 
         // Hide character cards, show character display
         if (this.cardContainer) {
@@ -432,7 +458,26 @@ class CharacterCardManager {
         console.log('Character sheet displayed');
     }
 
-    renderCharacterSheet(character) {
+    setupTabSwitching() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(`${targetTab}-tab`).classList.add('active');
+            });
+        });
+    }
+
+    renderOverviewTab(character) {
         const summary = this.importer.getCharacterSummary(character);
         
         return `
@@ -491,7 +536,15 @@ class CharacterCardManager {
                         </div>
                     </div>
                 </div>
+            </div>
+        `;
+    }
 
+    renderAbilitiesTab(character) {
+        const summary = this.importer.getCharacterSummary(character);
+        
+        return `
+            <div class="character-sheet">
                 <div class="character-feats">
                     <h3>Feats</h3>
                     <div class="feats-list">
@@ -504,6 +557,24 @@ class CharacterCardManager {
                     </div>
                 </div>
 
+                <div class="character-skills">
+                    <h3>Skills</h3>
+                    <div class="skills-list">
+                        ${character.skills ? Object.entries(character.skills).map(([skill, value]) => `
+                            <div class="skill-item">
+                                <span class="skill-name">${skill}</span>
+                                <span class="skill-value">${value}</span>
+                            </div>
+                        `).join('') : '<div class="no-skills">No skills available</div>'}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderMagicTab(character) {
+        return `
+            <div class="character-sheet">
                 <div class="character-spells">
                     <h3>Spellcasting</h3>
                     ${character.spellCasters && Array.isArray(character.spellCasters) ? character.spellCasters.map(caster => `
@@ -519,6 +590,34 @@ class CharacterCardManager {
                             </div>
                         </div>
                     `).join('') : '<div class="no-spells">No spellcasting abilities</div>'}
+                </div>
+            </div>
+        `;
+    }
+
+    renderEquipmentTab(character) {
+        return `
+            <div class="character-sheet">
+                <div class="character-equipment">
+                    <h3>Equipment & Inventory</h3>
+                    <div class="equipment-list">
+                        <div class="equipment-item">
+                            <span class="equipment-name">Equipment placeholder</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderNotesTab(character) {
+        return `
+            <div class="character-sheet">
+                <div class="character-notes">
+                    <h3>Notes & Backstory</h3>
+                    <div class="notes-content">
+                        <p>Notes and backstory will be displayed here.</p>
+                    </div>
                 </div>
             </div>
         `;
