@@ -530,9 +530,9 @@ class CharacterCardManager {
         this.currentCharacter = null;
     }
 
-    deleteCharacter(characterId) {
+    async deleteCharacter(characterId) {
         if (confirm('Are you sure you want to delete this character?')) {
-            if (this.importer.deleteCharacter(characterId)) {
+            if (await this.importer.deleteCharacter(characterId)) {
                 this.renderCharacterCards();
                 if (this.currentCharacter && this.currentCharacter.id === characterId) {
                     this.showCharacterCards();

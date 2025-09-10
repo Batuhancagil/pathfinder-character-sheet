@@ -167,6 +167,11 @@ class Character {
         return result.rows;
     }
 
+    static async findById(id) {
+        const result = await query('SELECT * FROM characters WHERE id = $1', [id]);
+        return result.rows[0];
+    }
+
     static async update(playerId, characterData) {
         const result = await query(
             'UPDATE characters SET character_data = $1 WHERE player_id = $2 RETURNING *',

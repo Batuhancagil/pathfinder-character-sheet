@@ -345,6 +345,30 @@ app.post('/api/characters', authenticateToken, async (req, res) => {
   }
 });
 
+app.delete('/api/characters/:id', authenticateToken, async (req, res) => {
+  try {
+    const characterId = req.params.id;
+    
+    // Check if character belongs to user
+    const character = await Character.findById(characterId);
+    if (!character) {
+      return res.status(404).json({ error: 'Character not found' });
+    }
+    
+    if (character.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    // Delete character
+    await query('DELETE FROM characters WHERE id = $1', [characterId]);
+    
+    res.json({ message: 'Character deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting character:', error);
+    res.status(500).json({ error: 'Failed to delete character' });
+  }
+});
+
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);

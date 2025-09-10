@@ -264,12 +264,35 @@ class CharacterImporter {
     }
 
     // Delete character
-    deleteCharacter(id) {
+    async deleteCharacter(id) {
+        console.log('Deleting character:', id);
+        
+        // Try to delete from database if user is authenticated
+        if (window.authManager && window.authManager.isUserAuthenticated()) {
+            try {
+                const response = await fetch(`/api/characters/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${window.authManager.getToken()}`
+                    }
+                });
+
+                if (response.ok) {
+                    console.log('Character deleted from database:', id);
+                } else {
+                    console.error('Failed to delete character from database');
+                }
+            } catch (error) {
+                console.error('Error deleting character from database:', error);
+            }
+        }
+        
+        // Remove from local array
         const index = this.importedCharacters.findIndex(char => char.id === id);
         if (index > -1) {
             this.importedCharacters.splice(index, 1);
             this.saveToStorage();
-            console.log('Character deleted:', id);
+            console.log('Character deleted from local array:', id);
             return true;
         }
         return false;
