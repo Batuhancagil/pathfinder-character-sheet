@@ -52,11 +52,24 @@ class CharacterImporter {
     loadFromStorage() {
         try {
             const stored = localStorage.getItem('pathfinder_characters');
-            const result = stored ? JSON.parse(stored) : [];
+            if (!stored) {
+                console.log('No characters in localStorage');
+                return [];
+            }
+            
+            const result = JSON.parse(stored);
+            if (!Array.isArray(result)) {
+                console.error('Invalid character data format in localStorage');
+                localStorage.removeItem('pathfinder_characters');
+                return [];
+            }
+            
             console.log('Loaded characters from storage:', result.length);
             return result;
         } catch (error) {
             console.error('Error loading characters from storage:', error);
+            // Clear corrupted data
+            localStorage.removeItem('pathfinder_characters');
             return [];
         }
     }
@@ -76,18 +89,26 @@ class CharacterImporter {
         try {
             console.log('Importing character from JSON');
             
-            // Check if user is authenticated
-            if (!window.authManager || !window.authManager.isUserAuthenticated()) {
-                throw new Error('You must be logged in to import characters');
-            }
-            
             const character = this.parsePathbuilderJson(pathbuilderJson);
             if (character) {
                 character.id = this.generateId();
                 character.importedAt = new Date().toISOString();
                 
-                // Save to database
-                await this.saveCharacterToDatabase(character);
+                // Try to save to database if user is authenticated
+                if (window.authManager && window.authManager.isUserAuthenticated()) {
+                    try {
+                        await this.saveCharacterToDatabase(character);
+                        console.log('Character saved to database:', character.name);
+                    } catch (dbError) {
+                        console.warn('Database save failed, saving to localStorage:', dbError.message);
+                        this.importedCharacters.push(character);
+                        this.saveToStorage();
+                    }
+                } else {
+                    // Save to localStorage if not authenticated
+                    this.importedCharacters.push(character);
+                    this.saveToStorage();
+                }
                 
                 console.log('Character imported successfully:', character.name, 'ID:', character.id);
                 return character;
@@ -265,7 +286,12 @@ class CharacterImporter {
     // Validate Pathbuilder JSON
     validatePathbuilderJson(jsonData) {
         try {
-            console.log('Validating JSON data');
+            console.log('Validating JSON data:', jsonData);
+            
+            if (!jsonData) {
+                return { valid: false, error: 'No JSON data provided' };
+            }
+            
             const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
             
             if (!data.success) {

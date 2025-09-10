@@ -219,6 +219,12 @@ class CharacterCardManager {
         
         try {
             console.log('Parsing JSON...');
+            console.log('JSON value to parse:', jsonValue);
+            
+            if (!jsonValue || jsonValue.trim() === '') {
+                throw new Error('Empty JSON input');
+            }
+            
             const jsonData = JSON.parse(jsonValue);
             console.log('JSON parsed successfully:', jsonData);
             
