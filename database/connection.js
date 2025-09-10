@@ -10,6 +10,13 @@ const pool = new Pool({
     connectionTimeoutMillis: 2000,
 });
 
+// Check if DATABASE_URL is set
+if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL not set! Please set your Railway PostgreSQL URL:');
+    console.warn('   export DATABASE_URL="postgresql://username:password@host:port/database"');
+    console.warn('   or create a .env file with DATABASE_URL=your_railway_url');
+}
+
 // Test database connection
 pool.on('connect', () => {
     console.log('Connected to PostgreSQL database');
