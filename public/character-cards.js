@@ -434,7 +434,7 @@ class CharacterCardManager {
         this.characterDisplay.innerHTML = `
             <div class="character-sheet-header">
                 <button id="backToCardsBtn" class="btn btn-secondary">← Back to Characters</button>
-                <h2>${summary.name} - ${summary.class} ${summary.level}</h2>
+                <h2>${summary.name} - ${summary.class} - <span class="character-level">${summary.level} LVL</span></h2>
             </div>
             <div class="character-sheet-content">
                 <div class="character-sheet-tabs">
