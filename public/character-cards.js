@@ -40,6 +40,11 @@ class CharacterCardManager {
     }
 
     setupEventListeners() {
+        // Remove existing listeners first
+        if (this.eventListenersAdded) {
+            return;
+        }
+        
         // Character import button - use event delegation
         document.addEventListener('click', async (e) => {
             if (e.target && e.target.id === 'importCharacterBtn') {
@@ -56,6 +61,8 @@ class CharacterCardManager {
                 this.showImportDialog();
             }
         });
+        
+        this.eventListenersAdded = true;
 
         // Character selection - click on card
         document.addEventListener('click', (e) => {
@@ -191,14 +198,23 @@ class CharacterCardManager {
     async handleImport() {
         console.log('Handling import');
         
-        // First, let's check if the dialog still exists
-        const dialog = document.querySelector('.import-dialog');
-        console.log('Dialog element:', dialog);
-        
-        if (!dialog) {
-            console.error('Import dialog not found!');
+        // Prevent multiple simultaneous imports
+        if (this.isImporting) {
+            console.log('Import already in progress, skipping...');
             return;
         }
+        
+        this.isImporting = true;
+        
+        try {
+            // First, let's check if the dialog still exists
+            const dialog = document.querySelector('.import-dialog');
+            console.log('Dialog element:', dialog);
+            
+            if (!dialog) {
+                console.error('Import dialog not found!');
+                return;
+            }
         
         const jsonInput = dialog.querySelector('#pathbuilderJson');
         const errorDiv = dialog.querySelector('#importError');
@@ -277,6 +293,8 @@ class CharacterCardManager {
                 errorDiv.textContent = 'Invalid JSON format: ' + error.message;
                 errorDiv.style.display = 'block';
             }
+        } finally {
+            this.isImporting = false;
         }
     }
 
@@ -475,30 +493,30 @@ class CharacterCardManager {
                 <div class="character-feats">
                     <h3>Feats</h3>
                     <div class="feats-list">
-                        ${character.feats.map(feat => `
+                        ${character.feats && Array.isArray(character.feats) ? character.feats.map(feat => `
                             <div class="feat-item">
                                 <span class="feat-name">${feat[0]}</span>
                                 <span class="feat-level">Level ${feat[3]}</span>
                             </div>
-                        `).join('')}
+                        `).join('') : '<div class="no-feats">No feats available</div>'}
                     </div>
                 </div>
 
                 <div class="character-spells">
                     <h3>Spellcasting</h3>
-                    ${character.spellCasters.map(caster => `
+                    ${character.spellCasters && Array.isArray(character.spellCasters) ? character.spellCasters.map(caster => `
                         <div class="spellcaster">
                             <h4>${caster.name} (${caster.magicTradition})</h4>
                             <div class="spell-levels">
-                                ${caster.perDay.map((slots, level) => `
+                                ${caster.perDay && Array.isArray(caster.perDay) ? caster.perDay.map((slots, level) => `
                                     <div class="spell-level">
                                         <span class="level">${level}</span>
                                         <span class="slots">${slots} slots</span>
                                     </div>
-                                `).join('')}
+                                `).join('') : ''}
                             </div>
                         </div>
-                    `).join('')}
+                    `).join('') : '<div class="no-spells">No spellcasting abilities</div>'}
                 </div>
             </div>
         `;
