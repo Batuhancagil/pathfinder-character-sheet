@@ -99,7 +99,17 @@ class CharacterCardManager {
         document.addEventListener('click', async (e) => {
             if (e.target && e.target.id === 'importBtn') {
                 console.log('Import dialog button clicked');
-                await this.handleImport();
+                // Prevent multiple clicks
+                if (e.target.disabled) return;
+                e.target.disabled = true;
+                e.target.textContent = 'Importing...';
+                
+                try {
+                    await this.handleImport();
+                } finally {
+                    e.target.disabled = false;
+                    e.target.textContent = 'Import';
+                }
             }
             if (e.target && e.target.id === 'cancelImportBtn') {
                 const dialog = e.target.closest('.import-dialog');
@@ -434,13 +444,13 @@ class CharacterCardManager {
                 <div class="character-abilities-section">
                     <h3>Ability Scores</h3>
                     <div class="abilities-grid">
-                        ${Object.entries(summary.abilities).map(([ability, score]) => `
+                        ${summary.abilities ? Object.entries(summary.abilities).map(([ability, score]) => `
                             <div class="ability-score">
                                 <div class="ability-name">${ability.toUpperCase()}</div>
                                 <div class="ability-value">${score}</div>
-                                <div class="ability-modifier">${summary.abilityModifiers[ability] >= 0 ? '+' : ''}${summary.abilityModifiers[ability]}</div>
+                                <div class="ability-modifier">${summary.abilityModifiers && summary.abilityModifiers[ability] >= 0 ? '+' : ''}${summary.abilityModifiers ? summary.abilityModifiers[ability] : 0}</div>
                             </div>
-                        `).join('')}
+                        `).join('') : ''}
                     </div>
                 </div>
 

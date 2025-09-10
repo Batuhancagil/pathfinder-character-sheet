@@ -97,17 +97,20 @@ class CharacterImporter {
                 // Try to save to database if user is authenticated
                 if (window.authManager && window.authManager.isUserAuthenticated()) {
                     try {
-                        await this.saveCharacterToDatabase(character);
-                        console.log('Character saved to database:', character.name);
+                        const savedCharacter = await this.saveCharacterToDatabase(character);
+                        console.log('Character saved to database:', savedCharacter.name);
+                        return savedCharacter;
                     } catch (dbError) {
                         console.warn('Database save failed, saving to localStorage:', dbError.message);
                         this.importedCharacters.push(character);
                         this.saveToStorage();
+                        return character;
                     }
                 } else {
                     // Save to localStorage if not authenticated
                     this.importedCharacters.push(character);
                     this.saveToStorage();
+                    return character;
                 }
                 
                 console.log('Character imported successfully:', character.name, 'ID:', character.id);
@@ -136,8 +139,8 @@ class CharacterImporter {
 
             if (response.ok) {
                 const savedCharacter = await response.json();
-                this.importedCharacters.push(savedCharacter);
                 console.log('Character saved to database:', savedCharacter.id);
+                return savedCharacter;
             } else {
                 console.error('Failed to save character to database');
                 throw new Error('Failed to save character to database');
