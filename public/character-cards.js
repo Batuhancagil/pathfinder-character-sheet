@@ -81,6 +81,7 @@ class CharacterCardManager {
             if (e.target.classList.contains('delete-character-btn')) {
                 e.stopPropagation();
                 const characterId = e.target.dataset.characterId;
+                console.log('Delete button clicked for character:', characterId);
                 this.deleteCharacter(characterId);
             }
         });
@@ -332,16 +333,16 @@ class CharacterCardManager {
 
     createCharacterCard(character) {
         const summary = this.importer.getCharacterSummary(character);
-        const classIcon = this.getClassIcon(character.class);
+        const classIcon = this.getClassIcon(summary.class);
         
         return `
             <div class="character-card" data-character-id="${character.id}">
                 <div class="character-card-header">
                     <div class="character-class-icon">${classIcon}</div>
                     <div class="character-info">
-                        <h4>${character.name}</h4>
-                        <p class="character-class">${character.class} ${character.level}</p>
-                        <p class="character-ancestry">${character.ancestry} ${character.heritage}</p>
+                        <h4>${summary.name}</h4>
+                        <p class="character-class">${summary.class} ${summary.level}</p>
+                        <p class="character-ancestry">${summary.ancestry} ${summary.heritage}</p>
                     </div>
                     <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">×</button>
                 </div>
@@ -403,7 +404,8 @@ class CharacterCardManager {
     }
 
     showCharacterSheet(character) {
-        console.log('Showing character sheet for:', character.name);
+        const summary = this.importer.getCharacterSummary(character);
+        console.log('Showing character sheet for:', summary.name);
         if (!this.characterDisplay) {
             console.error('Character display not found');
             return;
@@ -412,7 +414,7 @@ class CharacterCardManager {
         this.characterDisplay.innerHTML = `
             <div class="character-sheet-header">
                 <button id="backToCardsBtn" class="btn btn-secondary">← Back to Characters</button>
-                <h2>${character.name} - ${character.class} ${character.level}</h2>
+                <h2>${summary.name} - ${summary.class} ${summary.level}</h2>
             </div>
             <div class="character-sheet-content">
                 ${this.renderCharacterSheet(character)}
@@ -439,19 +441,19 @@ class CharacterCardManager {
                         <div class="info-grid">
                             <div class="info-item">
                                 <label>Ancestry:</label>
-                                <span>${character.ancestry} ${character.heritage}</span>
+                                <span>${summary.ancestry} ${summary.heritage}</span>
                             </div>
                             <div class="info-item">
                                 <label>Background:</label>
-                                <span>${character.background}</span>
+                                <span>${summary.background}</span>
                             </div>
                             <div class="info-item">
                                 <label>Alignment:</label>
-                                <span>${character.alignment}</span>
+                                <span>${summary.alignment || 'N'}</span>
                             </div>
                             <div class="info-item">
                                 <label>Deity:</label>
-                                <span>${character.deity}</span>
+                                <span>${summary.deity || 'None'}</span>
                             </div>
                         </div>
                     </div>
