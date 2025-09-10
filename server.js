@@ -348,24 +348,32 @@ app.post('/api/characters', authenticateToken, async (req, res) => {
 app.delete('/api/characters/:id', authenticateToken, async (req, res) => {
   try {
     const characterId = req.params.id;
+    console.log('DELETE request for character ID:', characterId);
+    console.log('User ID:', req.user.id);
     
     // Check if character belongs to user
     const character = await Character.findById(characterId);
+    console.log('Found character:', character);
+    
     if (!character) {
+      console.log('Character not found in database');
       return res.status(404).json({ error: 'Character not found' });
     }
     
     if (character.user_id !== req.user.id) {
+      console.log('Access denied - user ID mismatch');
       return res.status(403).json({ error: 'Access denied' });
     }
     
-    // Delete character
-    await query('DELETE FROM characters WHERE id = $1', [characterId]);
+    // Soft delete character
+    const deletedCharacter = await Character.softDelete(characterId);
+    console.log('Character soft deleted:', deletedCharacter);
     
     res.json({ message: 'Character deleted successfully' });
   } catch (error) {
     console.error('Error deleting character:', error);
-    res.status(500).json({ error: 'Failed to delete character' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: 'Failed to delete character', details: error.message });
   }
 });
 

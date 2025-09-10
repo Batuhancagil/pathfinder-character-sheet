@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS characters (
     session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
     character_data JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
 );
 
 -- Dice rolls table (for history)
@@ -66,11 +67,16 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Add deleted_at column to existing characters table if it doesn't exist
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP NULL;
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
 CREATE INDEX IF NOT EXISTS idx_players_session ON players(session_id);
 CREATE INDEX IF NOT EXISTS idx_characters_session ON characters(session_id);
 CREATE INDEX IF NOT EXISTS idx_characters_player ON characters(player_id);
+CREATE INDEX IF NOT EXISTS idx_characters_user ON characters(user_id);
+CREATE INDEX IF NOT EXISTS idx_characters_deleted ON characters(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_dice_rolls_session ON dice_rolls(session_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id);
 

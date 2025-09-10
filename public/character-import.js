@@ -283,24 +283,43 @@ class CharacterImporter {
     // Delete character
     async deleteCharacter(id) {
         console.log('Deleting character:', id);
+        console.log('Available characters:', this.importedCharacters.map(c => ({ id: c.id, name: c.name })));
+        
+        // Find the character to get the correct database ID
+        const character = this.importedCharacters.find(char => char.id === id);
+        if (!character) {
+            console.error('Character not found in local array:', id);
+            return false;
+        }
+        
+        console.log('Found character to delete:', character);
         
         // Try to delete from database if user is authenticated
         if (window.authManager && window.authManager.isUserAuthenticated()) {
             try {
-                const response = await fetch(`/api/characters/${id}`, {
+                // Use the database ID if available, otherwise use the local ID
+                const dbId = character.id; // This should be the database UUID
+                console.log('Attempting to delete from database with ID:', dbId);
+                
+                const response = await fetch(`/api/characters/${dbId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${window.authManager.getToken()}`
                     }
                 });
 
+                console.log('Delete response status:', response.status);
+                
                 if (response.ok) {
-                    console.log('Character deleted from database:', id);
+                    console.log('Character deleted from database:', dbId);
                 } else {
-                    console.error('Failed to delete character from database');
+                    const errorData = await response.json();
+                    console.error('Failed to delete character from database:', errorData);
+                    return false;
                 }
             } catch (error) {
                 console.error('Error deleting character from database:', error);
+                return false;
             }
         }
         

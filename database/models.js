@@ -163,7 +163,7 @@ class Character {
     }
 
     static async findByUser(userId) {
-        const result = await query('SELECT * FROM characters WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+        const result = await query('SELECT * FROM characters WHERE user_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC', [userId]);
         return result.rows;
     }
 
@@ -182,6 +182,11 @@ class Character {
 
     static async delete(playerId) {
         await query('DELETE FROM characters WHERE player_id = $1', [playerId]);
+    }
+
+    static async softDelete(id) {
+        const result = await query('UPDATE characters SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *', [id]);
+        return result.rows[0];
     }
 }
 
