@@ -172,7 +172,7 @@ class CharacterCardManager {
             <div class="skills-dialog-content">
                 <div class="skills-dialog-header">
                     <h3>Add Skills</h3>
-                    <p>Enter skills in the format: +19Perception, +0Athletics, etc.</p>
+                    <p>Copy skills from your Pathfinder character sheet and paste them here. Format: +19Perception, +0Athletics, +22Arcana, etc.</p>
                 </div>
                 <div class="skills-dialog-body">
                     <textarea id="skillsInput" placeholder="+19Perception&#10;+0Athletics&#10;+22Arcana&#10;+17Deception&#10;..."></textarea>
@@ -552,7 +552,7 @@ class CharacterCardManager {
                     <h2>${summary.name} - ${summary.class} - <span class="character-level">${summary.level} LVL</span></h2>
                 </div>
                 <div class="header-right">
-                    <button id="addSkillsBtn" class="btn btn-primary">Add Skills</button>
+                    <button id="addSkillsBtn" class="btn btn-primary" title="Copy skills from Pathfinder character sheet in format: +19Perception, +0Athletics, etc.">Add Skills</button>
                 </div>
             </div>
             <div class="character-sheet-content">
