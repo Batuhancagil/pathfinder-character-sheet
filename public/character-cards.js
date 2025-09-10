@@ -449,10 +449,6 @@ class CharacterCardManager {
         this.cardContainer.innerHTML = `
             <div class="character-cards-header">
                 <h3>Your Characters</h3>
-                <div class="header-actions">
-                    <button id="importCharacterBtn" class="btn btn-primary">Import Character</button>
-                    <button id="addSkillsBtn" class="btn btn-secondary">Add Skills</button>
-                </div>
             </div>
             <div class="character-cards-grid">
                 ${characters.map(char => this.createCharacterCard(char)).join('')}
@@ -551,8 +547,13 @@ class CharacterCardManager {
 
         this.characterDisplay.innerHTML = `
             <div class="character-sheet-header">
-                <button id="backToCardsBtn" class="btn btn-secondary">← Back to Characters</button>
-                <h2>${summary.name} - ${summary.class} - <span class="character-level">${summary.level} LVL</span></h2>
+                <div class="header-left">
+                    <button id="backToCardsBtn" class="btn btn-secondary">← Back to Characters</button>
+                    <h2>${summary.name} - ${summary.class} - <span class="character-level">${summary.level} LVL</span></h2>
+                </div>
+                <div class="header-right">
+                    <button id="addSkillsBtn" class="btn btn-primary">Add Skills</button>
+                </div>
             </div>
             <div class="character-sheet-content">
                 <div class="character-sheet-tabs">
