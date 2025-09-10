@@ -8,7 +8,7 @@ require('dotenv').config();
 
 // Database imports
 const { initializeDatabase } = require('./database/connection');
-const { Session, Player, Character, DiceRoll, ChatMessage } = require('./database/models');
+const { User, Session, Player, Character, DiceRoll, ChatMessage } = require('./database/models');
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +25,24 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  const decoded = User.verifyToken(token);
+  if (!decoded) {
+    return res.status(403).json({ error: 'Invalid or expired token' });
+  }
+
+  req.user = decoded;
+  next();
+};
 
 // Initialize database on startup
 async function startServer() {
@@ -52,6 +70,129 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     database: process.env.DATABASE_URL ? 'Connected' : 'Not connected'
   });
+});
+
+// Authentication Routes
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await User.findByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists with this email' });
+    }
+    
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      provider: 'email'
+    });
+    
+    // Generate token
+    const token = User.generateToken(user);
+    
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture_url
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Failed to register user' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Find user
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    // Verify password
+    const isValidPassword = await User.verifyPassword(user, password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    // Generate token
+    const token = User.generateToken(user);
+    
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture_url
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { id, name, email, picture, provider } = req.body;
+    
+    // Check if user exists
+    let user = await User.findByGoogleId(id);
+    
+    if (!user) {
+      // Check if user exists with this email
+      user = await User.findByEmail(email);
+      if (user) {
+        // Update existing user with Google ID
+        await query(
+          'UPDATE users SET google_id = $1, picture_url = $2, provider = $3 WHERE id = $4',
+          [id, picture, provider, user.id]
+        );
+        user.google_id = id;
+        user.picture_url = picture;
+        user.provider = provider;
+      } else {
+        // Create new user
+        user = await User.create({
+          googleId: id,
+          name,
+          email,
+          pictureUrl: picture,
+          provider
+        });
+      }
+    }
+    
+    // Generate token
+    const token = User.generateToken(user);
+    
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture_url
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ error: 'Failed to authenticate with Google' });
+  }
 });
 
 // API Routes
@@ -154,6 +295,29 @@ app.post('/api/sessions/:id/join', async (req, res) => {
   } catch (error) {
     console.error('Error joining session:', error);
     res.status(500).json({ error: 'Failed to join session' });
+  }
+});
+
+// Characters API
+app.get('/api/characters', authenticateToken, async (req, res) => {
+  try {
+    const characters = await Character.findByUser(req.user.id);
+    res.json(characters);
+  } catch (error) {
+    console.error('Error fetching characters:', error);
+    res.status(500).json({ error: 'Failed to fetch characters' });
+  }
+});
+
+app.post('/api/characters', authenticateToken, async (req, res) => {
+  try {
+    const { characterData } = req.body;
+    
+    const character = await Character.create(req.user.id, null, null, characterData);
+    res.json(character);
+  } catch (error) {
+    console.error('Error creating character:', error);
+    res.status(500).json({ error: 'Failed to create character' });
   }
 });
 

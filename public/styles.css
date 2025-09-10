@@ -33,6 +33,189 @@ body::before {
     z-index: -1;
 }
 
+/* Auth Modal Styles */
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.auth-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border: 3px solid #d4af37;
+    border-radius: 15px;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-header h2 {
+    color: #d4af37;
+    margin: 0 0 10px 0;
+    font-family: 'Cinzel', serif;
+    font-size: 1.8em;
+}
+
+.auth-header p {
+    color: #ecf0f1;
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #3498db;
+}
+
+.auth-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ecf0f1;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.auth-tab:hover {
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.auth-tab.active {
+    color: #d4af37;
+    border-bottom-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.auth-form {
+    display: block;
+}
+
+.google-auth {
+    margin-bottom: 25px;
+}
+
+.google-btn {
+    width: 100%;
+    background: #ffffff;
+    border: 2px solid #dadce0;
+    color: #3c4043;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Crimson Text', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn:hover {
+    background: #f8f9fa;
+    border-color: #d4af37;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #3498db;
+}
+
+.divider span {
+    background: #2c3e50;
+    color: #3498db;
+    padding: 0 15px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.email-form .form-group {
+    margin-bottom: 20px;
+}
+
+.email-form label {
+    display: block;
+    color: #d4af37;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.email-form input {
+    width: 100%;
+    background: #34495e;
+    border: 2px solid #3498db;
+    color: #ecf0f1;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.email-form input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.email-form input::placeholder {
+    color: #95a5a6;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-name {
+    color: #d4af37;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
 .app-container {
     max-width: 1200px;
     margin: 0 auto;

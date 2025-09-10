@@ -1,4 +1,60 @@
 const { query } = require('./connection');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// User Model
+class User {
+    static async create(userData) {
+        const { googleId, name, email, password, pictureUrl, provider = 'email' } = userData;
+        
+        let passwordHash = null;
+        if (password) {
+            passwordHash = await bcrypt.hash(password, 10);
+        }
+        
+        const result = await query(
+            'INSERT INTO users (google_id, name, email, password_hash, picture_url, provider) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [googleId, name, email, passwordHash, pictureUrl, provider]
+        );
+        return result.rows[0];
+    }
+
+    static async findByEmail(email) {
+        const result = await query('SELECT * FROM users WHERE email = $1', [email]);
+        return result.rows[0];
+    }
+
+    static async findByGoogleId(googleId) {
+        const result = await query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+        return result.rows[0];
+    }
+
+    static async findById(id) {
+        const result = await query('SELECT * FROM users WHERE id = $1', [id]);
+        return result.rows[0];
+    }
+
+    static async verifyPassword(user, password) {
+        if (!user.password_hash) return false;
+        return await bcrypt.compare(password, user.password_hash);
+    }
+
+    static generateToken(user) {
+        return jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET || 'your-secret-key',
+            { expiresIn: '7d' }
+        );
+    }
+
+    static verifyToken(token) {
+        try {
+            return jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        } catch (error) {
+            return null;
+        }
+    }
+}
 
 // Session Model
 class Session {
@@ -79,10 +135,10 @@ class Player {
 
 // Character Model
 class Character {
-    static async create(playerId, sessionId, characterData) {
+    static async create(userId, playerId, sessionId, characterData) {
         const result = await query(
-            'INSERT INTO characters (player_id, session_id, character_data) VALUES ($1, $2, $3) RETURNING *',
-            [playerId, sessionId, JSON.stringify(characterData)]
+            'INSERT INTO characters (user_id, player_id, session_id, character_data) VALUES ($1, $2, $3, $4) RETURNING *',
+            [userId, playerId, sessionId, JSON.stringify(characterData)]
         );
         return result.rows[0];
     }
@@ -103,6 +159,11 @@ class Character {
             WHERE c.session_id = $1 
             ORDER BY c.created_at ASC
         `, [sessionId]);
+        return result.rows;
+    }
+
+    static async findByUser(userId) {
+        const result = await query('SELECT * FROM characters WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
         return result.rows;
     }
 
@@ -166,6 +227,7 @@ class ChatMessage {
 }
 
 module.exports = {
+    User,
     Session,
     Player,
     Character,
