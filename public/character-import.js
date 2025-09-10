@@ -2,8 +2,50 @@
 class CharacterImporter {
     constructor() {
         this.supportedClasses = ['Wizard', 'Cleric', 'Fighter', 'Rogue', 'Ranger', 'Paladin', 'Barbarian', 'Bard', 'Druid', 'Monk', 'Sorcerer', 'Warlock'];
-        this.importedCharacters = this.loadFromStorage();
-        console.log('CharacterImporter initialized with', this.importedCharacters.length, 'characters');
+        this.importedCharacters = [];
+        console.log('CharacterImporter initialized');
+    }
+
+    // Load characters from database or localStorage
+    async loadCharacters() {
+        console.log('Loading characters...');
+        console.log('Auth manager available:', !!window.authManager);
+        console.log('User authenticated:', window.authManager ? window.authManager.isUserAuthenticated() : false);
+        
+        if (window.authManager && window.authManager.isUserAuthenticated()) {
+            // Load from database
+            try {
+                const token = window.authManager.getToken();
+                console.log('Token available:', !!token);
+                
+                const response = await fetch('/api/characters', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                console.log('Database response status:', response.status);
+                
+                if (response.ok) {
+                    const characters = await response.json();
+                    this.importedCharacters = characters;
+                    console.log('Loaded characters from database:', characters.length);
+                    console.log('Characters:', characters);
+                } else {
+                    console.error('Failed to load characters from database, falling back to localStorage');
+                    this.importedCharacters = this.loadFromStorage();
+                }
+            } catch (error) {
+                console.error('Error loading characters from database:', error);
+                this.importedCharacters = this.loadFromStorage();
+            }
+        } else {
+            // User not authenticated - clear characters
+            console.log('User not authenticated - clearing characters');
+            this.importedCharacters = [];
+        }
+        
+        console.log('Final character count:', this.importedCharacters.length);
     }
 
     // Load characters from localStorage
@@ -30,15 +72,23 @@ class CharacterImporter {
     }
 
     // Import character from Pathbuilder JSON
-    importCharacter(pathbuilderJson) {
+    async importCharacter(pathbuilderJson) {
         try {
             console.log('Importing character from JSON');
+            
+            // Check if user is authenticated
+            if (!window.authManager || !window.authManager.isUserAuthenticated()) {
+                throw new Error('You must be logged in to import characters');
+            }
+            
             const character = this.parsePathbuilderJson(pathbuilderJson);
             if (character) {
                 character.id = this.generateId();
                 character.importedAt = new Date().toISOString();
-                this.importedCharacters.push(character);
-                this.saveToStorage();
+                
+                // Save to database
+                await this.saveCharacterToDatabase(character);
+                
                 console.log('Character imported successfully:', character.name, 'ID:', character.id);
                 return character;
             } else {
@@ -48,6 +98,32 @@ class CharacterImporter {
         } catch (error) {
             console.error('Error importing character:', error);
             throw new Error('Failed to import character: ' + error.message);
+        }
+    }
+
+    // Save character to database
+    async saveCharacterToDatabase(character) {
+        try {
+            const response = await fetch('/api/characters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.authManager.getToken()}`
+                },
+                body: JSON.stringify({ characterData: character })
+            });
+
+            if (response.ok) {
+                const savedCharacter = await response.json();
+                this.importedCharacters.push(savedCharacter);
+                console.log('Character saved to database:', savedCharacter.id);
+            } else {
+                console.error('Failed to save character to database');
+                throw new Error('Failed to save character to database');
+            }
+        } catch (error) {
+            console.error('Error saving character to database:', error);
+            throw error;
         }
     }
 

@@ -72,6 +72,13 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Configuration endpoint
+app.get('/api/config', (req, res) => {
+  res.json({
+    googleClientId: process.env.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID'
+  });
+});
+
 // Authentication Routes
 app.post('/api/auth/register', async (req, res) => {
   try {

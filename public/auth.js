@@ -47,18 +47,28 @@ class AuthManager {
         });
     }
 
-    initializeGoogleAuth() {
-        // Google Auth will be initialized when the script loads
-        if (typeof google !== 'undefined') {
-            google.accounts.id.initialize({
-                client_id: 'YOUR_GOOGLE_CLIENT_ID', // Replace with actual client ID
-                callback: this.handleGoogleCallback.bind(this),
-                auto_select: false,
-                cancel_on_tap_outside: true
-            });
-        } else {
-            // Retry after a short delay if Google hasn't loaded yet
-            setTimeout(() => this.initializeGoogleAuth(), 100);
+    async initializeGoogleAuth() {
+        try {
+            // Fetch Google client ID from server
+            const response = await fetch('/api/config');
+            const config = await response.json();
+            
+            if (typeof google !== 'undefined') {
+                google.accounts.id.initialize({
+                    client_id: config.googleClientId,
+                    callback: this.handleGoogleCallback.bind(this),
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+                console.log('Google Auth initialized with client ID:', config.googleClientId);
+            } else {
+                // Retry after a short delay if Google hasn't loaded yet
+                setTimeout(() => this.initializeGoogleAuth(), 100);
+            }
+        } catch (error) {
+            console.error('Failed to initialize Google Auth:', error);
+            // Retry after a short delay
+            setTimeout(() => this.initializeGoogleAuth(), 1000);
         }
     }
 
@@ -105,9 +115,13 @@ class AuthManager {
             const result = await this.authenticateUser(userData);
             
             if (result.success) {
-                this.setUser(result.user);
+                this.setUser(result.user, result.token);
                 this.hideAuthModal();
-                this.loadUserCharacters();
+                await this.loadUserCharacters();
+                // Refresh character cards if manager is available
+                if (window.characterCardManager) {
+                    await window.characterCardManager.refreshCharacters();
+                }
             } else {
                 alert('Authentication failed: ' + result.error);
             }
@@ -147,9 +161,13 @@ class AuthManager {
             const result = await response.json();
 
             if (response.ok) {
-                this.setUser(result.user);
+                this.setUser(result.user, result.token);
                 this.hideAuthModal();
-                this.loadUserCharacters();
+                await this.loadUserCharacters();
+                // Refresh character cards if manager is available
+                if (window.characterCardManager) {
+                    await window.characterCardManager.refreshCharacters();
+                }
             } else {
                 alert('Login failed: ' + result.error);
             }
@@ -192,9 +210,13 @@ class AuthManager {
             const result = await response.json();
 
             if (response.ok) {
-                this.setUser(result.user);
+                this.setUser(result.user, result.token);
                 this.hideAuthModal();
-                this.loadUserCharacters();
+                await this.loadUserCharacters();
+                // Refresh character cards if manager is available
+                if (window.characterCardManager) {
+                    await window.characterCardManager.refreshCharacters();
+                }
             } else {
                 alert('Registration failed: ' + result.error);
             }
@@ -221,7 +243,7 @@ class AuthManager {
         }
     }
 
-    setUser(user) {
+    setUser(user, token) {
         this.currentUser = user;
         this.isAuthenticated = true;
         
@@ -231,19 +253,23 @@ class AuthManager {
         
         // Store in localStorage
         localStorage.setItem('currentUser', JSON.stringify(user));
+        if (token) {
+            localStorage.setItem('authToken', token);
+        }
     }
 
-    checkAuthStatus() {
+    async checkAuthStatus() {
         const storedUser = localStorage.getItem('currentUser');
         if (storedUser) {
             try {
                 const user = JSON.parse(storedUser);
                 this.setUser(user);
                 this.hideAuthModal();
-                this.loadUserCharacters();
+                await this.loadUserCharacters();
             } catch (error) {
                 console.error('Error parsing stored user:', error);
                 localStorage.removeItem('currentUser');
+                localStorage.removeItem('authToken');
             }
         } else {
             this.showAuthModal();
@@ -256,7 +282,7 @@ class AuthManager {
         try {
             const response = await fetch('/api/characters', {
                 headers: {
-                    'Authorization': `Bearer ${this.currentUser.token}`
+                    'Authorization': `Bearer ${this.getToken()}`
                 }
             });
 
@@ -273,6 +299,10 @@ class AuthManager {
         }
     }
 
+    getToken() {
+        return localStorage.getItem('authToken') || (this.currentUser && this.currentUser.token);
+    }
+
     logout() {
         this.currentUser = null;
         this.isAuthenticated = false;
@@ -282,8 +312,10 @@ class AuthManager {
         
         // Clear localStorage
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('pathfinder_characters'); // Clear local character storage
         
-        // Clear characters
+        // Clear characters from manager
         if (window.characterCardManager) {
             window.characterCardManager.importer.characters = [];
             window.characterCardManager.renderCharacterCards();

@@ -6,11 +6,20 @@ let characterCardManager;
 let currentTab = 'characters';
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('Pathfinder Character Sheet App Initialized');
+    
+    // Wait for auth manager to be ready
+    while (!window.authManager) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Wait for auth status to be checked
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Initialize character card manager
     characterCardManager = new CharacterCardManager();
+    await characterCardManager.init();
     
     // Initialize socket connection
     initializeSocket();

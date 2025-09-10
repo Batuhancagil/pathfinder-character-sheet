@@ -8,10 +8,34 @@ class CharacterCardManager {
         this.init();
     }
 
-    init() {
+    async init() {
         this.cardContainer = document.getElementById('characterCards');
         this.characterDisplay = document.getElementById('characterDisplay');
         this.setupEventListeners();
+        
+        // Wait for auth manager to be ready
+        await this.waitForAuth();
+        
+        await this.loadCharacters();
+        this.renderCharacterCards();
+    }
+
+    async waitForAuth() {
+        // Wait for auth manager to be available and check auth status
+        while (!window.authManager) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Wait a bit more for auth status to be checked
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    async loadCharacters() {
+        await this.importer.loadCharacters();
+    }
+
+    async refreshCharacters() {
+        await this.loadCharacters();
         this.renderCharacterCards();
     }
 
@@ -22,6 +46,13 @@ class CharacterCardManager {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Import button clicked');
+                
+                // Check if user is authenticated
+                if (!window.authManager || !window.authManager.isUserAuthenticated()) {
+                    alert('You must be logged in to import characters');
+                    return;
+                }
+                
                 this.showImportDialog();
             }
         });
@@ -44,6 +75,16 @@ class CharacterCardManager {
                 e.stopPropagation();
                 const characterId = e.target.dataset.characterId;
                 this.deleteCharacter(characterId);
+            }
+        });
+
+        // Refresh characters button
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'refreshCharactersBtn') {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Refresh button clicked');
+                this.refreshCharacters();
             }
         });
 
