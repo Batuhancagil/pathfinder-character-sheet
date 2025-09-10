@@ -107,14 +107,24 @@ class CharacterCardManager {
 
         // Tab switching - use event delegation
         document.addEventListener('click', (e) => {
+            console.log('=== CLICK EVENT DEBUG ===');
+            console.log('Click target:', e.target);
+            console.log('Target classes:', e.target.className);
+            console.log('Target dataset:', e.target.dataset);
+            console.log('Closest character-sheet-tabs:', e.target.closest('.character-sheet-tabs'));
+            
             if (e.target && e.target.classList.contains('tab-button') && e.target.closest('.character-sheet-tabs')) {
+                console.log('Tab button click detected!');
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 console.log('Tab button clicked:', e.target.dataset.tab);
                 this.handleTabSwitch(e.target);
                 return false; // Prevent any further event handling
+            } else {
+                console.log('Not a tab button click');
             }
+            console.log('=== END CLICK EVENT DEBUG ===');
         });
 
         // Import dialog buttons
@@ -477,23 +487,62 @@ class CharacterCardManager {
 
     handleTabSwitch(button) {
         const targetTab = button.dataset.tab;
+        console.log('=== TAB SWITCHING DEBUG ===');
         console.log('Switching to tab:', targetTab);
+        console.log('Button element:', button);
+        console.log('Button classes:', button.className);
         
-        // Remove active class from all buttons and contents
+        // Check current state
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
+        console.log('Found tab buttons:', tabButtons.length);
+        console.log('Found tab contents:', tabContents.length);
         
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
+        // Log current active states
+        console.log('Current active buttons:');
+        tabButtons.forEach((btn, index) => {
+            console.log(`  Button ${index}:`, btn.textContent, 'active:', btn.classList.contains('active'));
+        });
+        
+        console.log('Current active contents:');
+        tabContents.forEach((content, index) => {
+            console.log(`  Content ${index}:`, content.id, 'active:', content.classList.contains('active'));
+        });
+        
+        // Remove active class from all buttons and contents
+        console.log('Removing active classes...');
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            console.log(`  Removed active from button:`, btn.textContent);
+        });
+        tabContents.forEach(content => {
+            content.classList.remove('active');
+            console.log(`  Removed active from content:`, content.id);
+        });
         
         // Add active class to clicked button and corresponding content
+        console.log('Adding active classes...');
         button.classList.add('active');
+        console.log(`  Added active to button:`, button.textContent);
+        
         const targetContent = document.getElementById(`${targetTab}-tab`);
+        console.log('Target content element:', targetContent);
         if (targetContent) {
             targetContent.classList.add('active');
+            console.log(`  Added active to content:`, targetContent.id);
         } else {
             console.error('Target tab content not found:', `${targetTab}-tab`);
         }
+        
+        // Final state check
+        console.log('Final active states:');
+        tabButtons.forEach((btn, index) => {
+            console.log(`  Button ${index}:`, btn.textContent, 'active:', btn.classList.contains('active'));
+        });
+        tabContents.forEach((content, index) => {
+            console.log(`  Content ${index}:`, content.id, 'active:', content.classList.contains('active'));
+        });
+        console.log('=== END TAB SWITCHING DEBUG ===');
     }
 
     renderOverviewTab(character) {
