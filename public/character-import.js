@@ -28,18 +28,26 @@ class CharacterImporter {
                 
                 if (response.ok) {
                     const characters = await response.json();
+                    console.log('Raw characters from database:', characters);
+                    
                     // Parse character_data from database
                     this.importedCharacters = characters.map(char => {
+                        console.log('Processing character:', char);
                         if (char.character_data) {
+                            // Check if character_data is already an object or a string
+                            const characterData = typeof char.character_data === 'string' 
+                                ? JSON.parse(char.character_data) 
+                                : char.character_data;
+                            
                             return {
                                 ...char,
-                                ...JSON.parse(char.character_data)
+                                ...characterData
                             };
                         }
                         return char;
                     });
                     console.log('Loaded characters from database:', characters.length);
-                    console.log('Characters:', this.importedCharacters);
+                    console.log('Processed characters:', this.importedCharacters);
                 } else {
                     console.error('Failed to load characters from database, falling back to localStorage');
                     this.importedCharacters = this.loadFromStorage();
@@ -376,7 +384,12 @@ class CharacterImporter {
         console.log('Getting character summary for:', character);
         
         // Handle database characters that might have character_data field
-        const charData = character.character_data ? JSON.parse(character.character_data) : character;
+        let charData = character;
+        if (character.character_data) {
+            charData = typeof character.character_data === 'string' 
+                ? JSON.parse(character.character_data) 
+                : character.character_data;
+        }
         
         return {
             id: character.id || charData.id,
@@ -401,7 +414,12 @@ class CharacterImporter {
         console.log('Calculating HP for character:', character);
         
         // Handle database characters that might have character_data field
-        const charData = character.character_data ? JSON.parse(character.character_data) : character;
+        let charData = character;
+        if (character.character_data) {
+            charData = typeof character.character_data === 'string' 
+                ? JSON.parse(character.character_data) 
+                : character.character_data;
+        }
         
         const attrs = charData.attributes || {};
         const conMod = charData.abilityModifiers?.con || 0;
