@@ -492,9 +492,10 @@ class CharacterCardManager {
         console.log('Button element:', button);
         console.log('Button classes:', button.className);
         
-        // Check current state
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
+        // Check current state - only within character sheet tabs
+        const characterSheetTabs = document.querySelector('.character-sheet-tabs');
+        const tabButtons = characterSheetTabs ? characterSheetTabs.querySelectorAll('.tab-button') : [];
+        const tabContents = characterSheetTabs ? characterSheetTabs.querySelectorAll('.tab-content') : [];
         console.log('Found tab buttons:', tabButtons.length);
         console.log('Found tab contents:', tabContents.length);
         
