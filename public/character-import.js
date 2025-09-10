@@ -28,9 +28,18 @@ class CharacterImporter {
                 
                 if (response.ok) {
                     const characters = await response.json();
-                    this.importedCharacters = characters;
+                    // Parse character_data from database
+                    this.importedCharacters = characters.map(char => {
+                        if (char.character_data) {
+                            return {
+                                ...char,
+                                ...JSON.parse(char.character_data)
+                            };
+                        }
+                        return char;
+                    });
                     console.log('Loaded characters from database:', characters.length);
-                    console.log('Characters:', characters);
+                    console.log('Characters:', this.importedCharacters);
                 } else {
                     console.error('Failed to load characters from database, falling back to localStorage');
                     this.importedCharacters = this.loadFromStorage();
@@ -364,31 +373,47 @@ class CharacterImporter {
 
     // Get character summary for display
     getCharacterSummary(character) {
+        console.log('Getting character summary for:', character);
+        
+        // Handle database characters that might have character_data field
+        const charData = character.character_data ? JSON.parse(character.character_data) : character;
+        
         return {
-            id: character.id,
-            name: character.name,
-            class: character.class,
-            level: character.level,
-            ancestry: character.ancestry,
-            heritage: character.heritage,
-            background: character.background,
-            keyAbility: character.keyAbility,
-            abilities: character.abilities,
-            abilityModifiers: character.abilityModifiers,
-            ac: character.acTotal?.acTotal || 10,
-            hp: this.calculateTotalHp(character),
-            speed: character.attributes?.speed || 25,
-            importedAt: character.importedAt
+            id: character.id || charData.id,
+            name: charData.name || 'Unknown',
+            class: charData.class || 'Unknown',
+            level: charData.level || 1,
+            ancestry: charData.ancestry || 'Unknown',
+            heritage: charData.heritage || 'Unknown',
+            background: charData.background || 'Unknown',
+            keyAbility: charData.keyAbility || 'str',
+            abilities: charData.abilities || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+            abilityModifiers: charData.abilityModifiers || this.calculateAbilityModifiers(charData.abilities || {}),
+            ac: charData.acTotal?.acTotal || 10,
+            hp: this.calculateTotalHp(charData),
+            speed: charData.attributes?.speed || 25,
+            importedAt: character.importedAt || charData.importedAt
         };
     }
 
     // Calculate total HP
     calculateTotalHp(character) {
-        const attrs = character.attributes;
-        const conMod = character.abilityModifiers?.con || 0;
-        const baseHp = (attrs?.ancestryHp || 0) + (attrs?.classHp || 0) + (attrs?.bonusHp || 0);
-        const levelHp = (character.level - 1) * ((attrs?.classHp || 0) + (attrs?.bonusHpPerLevel || 0) + conMod);
-        return baseHp + levelHp;
+        console.log('Calculating HP for character:', character);
+        
+        // Handle database characters that might have character_data field
+        const charData = character.character_data ? JSON.parse(character.character_data) : character;
+        
+        const attrs = charData.attributes || {};
+        const conMod = charData.abilityModifiers?.con || 0;
+        const level = charData.level || 1;
+        
+        const baseHp = (attrs.ancestryHp || 0) + (attrs.classHp || 0) + (attrs.bonusHp || 0);
+        const levelHp = (level - 1) * ((attrs.classHp || 0) + (attrs.bonusHpPerLevel || 0) + conMod);
+        
+        const totalHp = baseHp + levelHp;
+        console.log('HP calculation:', { baseHp, levelHp, totalHp, level, conMod });
+        
+        return totalHp;
     }
 
     // Get characters by class
