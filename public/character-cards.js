@@ -139,6 +139,121 @@ class CharacterCardManager {
                 }
             }
         });
+
+        // Skills dialog buttons
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'addSkillsBtn') {
+                this.showSkillsDialog();
+            }
+            if (e.target && e.target.id === 'saveSkillsBtn') {
+                this.saveSkills();
+            }
+            if (e.target && e.target.id === 'cancelSkillsBtn') {
+                const dialog = e.target.closest('.skills-dialog');
+                if (dialog) {
+                    document.body.removeChild(dialog);
+                }
+            }
+        });
+    }
+
+    showSkillsDialog() {
+        console.log('Showing skills dialog');
+        
+        // Check if dialog already exists
+        const existingDialog = document.querySelector('.skills-dialog');
+        if (existingDialog) {
+            document.body.removeChild(existingDialog);
+        }
+
+        const dialog = document.createElement('div');
+        dialog.className = 'skills-dialog';
+        dialog.innerHTML = `
+            <div class="skills-dialog-content">
+                <div class="skills-dialog-header">
+                    <h3>Add Skills</h3>
+                    <p>Enter skills in the format: +19Perception, +0Athletics, etc.</p>
+                </div>
+                <div class="skills-dialog-body">
+                    <textarea id="skillsInput" placeholder="+19Perception&#10;+0Athletics&#10;+22Arcana&#10;+17Deception&#10;..."></textarea>
+                    <div id="skillsError" class="error-message" style="display: none;"></div>
+                </div>
+                <div class="skills-dialog-footer">
+                    <button id="cancelSkillsBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="saveSkillsBtn" class="btn btn-primary">Save Skills</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+        
+        // Focus on textarea
+        const textarea = dialog.querySelector('#skillsInput');
+        if (textarea) {
+            textarea.focus();
+        }
+    }
+
+    saveSkills() {
+        const dialog = document.querySelector('.skills-dialog');
+        if (!dialog) return;
+
+        const skillsInput = dialog.querySelector('#skillsInput');
+        const errorDiv = dialog.querySelector('#skillsError');
+        
+        if (!skillsInput) {
+            console.error('Skills input not found');
+            return;
+        }
+
+        const skillsText = skillsInput.value.trim();
+        if (!skillsText) {
+            errorDiv.textContent = 'Please enter some skills';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Parse skills
+        const skills = this.parseSkills(skillsText);
+        if (skills.length === 0) {
+            errorDiv.textContent = 'No valid skills found. Use format: +19Perception, +0Athletics, etc.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Store skills in localStorage
+        localStorage.setItem('characterSkills', JSON.stringify(skills));
+        
+        // Close dialog
+        document.body.removeChild(dialog);
+        
+        // Refresh character cards to show updated skills
+        this.refreshCharacters();
+        
+        console.log('Skills saved:', skills);
+    }
+
+    parseSkills(skillsText) {
+        const skills = [];
+        const lines = skillsText.split('\n').filter(line => line.trim());
+        
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            
+            // Match format: +19Perception, +0Athletics, etc.
+            const match = trimmed.match(/^([+-]?\d+)(.+)$/);
+            if (match) {
+                const modifier = parseInt(match[1]);
+                const skillName = match[2].trim();
+                skills.push({
+                    name: skillName,
+                    modifier: modifier
+                });
+            }
+        }
+        
+        return skills;
     }
 
     showImportDialog() {
@@ -334,7 +449,10 @@ class CharacterCardManager {
         this.cardContainer.innerHTML = `
             <div class="character-cards-header">
                 <h3>Your Characters</h3>
-                <button id="importCharacterBtn" class="btn btn-primary">Import Character</button>
+                <div class="header-actions">
+                    <button id="importCharacterBtn" class="btn btn-primary">Import Character</button>
+                    <button id="addSkillsBtn" class="btn btn-secondary">Add Skills</button>
+                </div>
             </div>
             <div class="character-cards-grid">
                 ${characters.map(char => this.createCharacterCard(char)).join('')}
@@ -566,7 +684,38 @@ class CharacterCardManager {
                     </div>
                 </div>
             </div>
+
+            <div class="character-skills-overview">
+                <h3>Skills</h3>
+                <div class="skills-overview-grid">
+                    ${this.renderSkillsOverview()}
+                </div>
+            </div>
         `;
+    }
+
+    renderSkillsOverview() {
+        const skillsData = localStorage.getItem('characterSkills');
+        if (!skillsData) {
+            return '<div class="no-skills">No skills added yet. Click "Add Skills" to add them.</div>';
+        }
+
+        try {
+            const skills = JSON.parse(skillsData);
+            if (!Array.isArray(skills) || skills.length === 0) {
+                return '<div class="no-skills">No skills added yet. Click "Add Skills" to add them.</div>';
+            }
+
+            return skills.map(skill => `
+                <div class="skill-overview-item">
+                    <span class="skill-modifier">${skill.modifier >= 0 ? '+' : ''}${skill.modifier}</span>
+                    <span class="skill-name">${skill.name}</span>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error parsing skills:', error);
+            return '<div class="no-skills">Error loading skills. Please add them again.</div>';
+        }
     }
 
     renderAbilitiesTab(character) {
