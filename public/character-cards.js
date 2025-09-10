@@ -79,7 +79,9 @@ class CharacterCardManager {
         // Character deletion
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('delete-character-btn')) {
+                e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 const characterId = e.target.dataset.characterId;
                 console.log('Delete button clicked for character:', characterId);
                 this.deleteCharacter(characterId);
@@ -344,7 +346,7 @@ class CharacterCardManager {
                         <p class="character-class">${summary.class} ${summary.level}</p>
                         <p class="character-ancestry">${summary.ancestry} ${summary.heritage}</p>
                     </div>
-                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">×</button>
+                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">🗑️</button>
                 </div>
                 <div class="character-stats">
                     <div class="stat">
@@ -536,9 +538,8 @@ class CharacterCardManager {
         if (confirm('Are you sure you want to delete this character?')) {
             if (await this.importer.deleteCharacter(characterId)) {
                 this.renderCharacterCards();
-                if (this.currentCharacter && this.currentCharacter.id === characterId) {
-                    this.showCharacterCards();
-                }
+                // Always go back to character cards view after deletion
+                this.showCharacterCards();
             }
         }
     }
