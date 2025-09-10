@@ -482,6 +482,36 @@ h2 {
     font-size: 0.9em;
 }
 
+.delete-character-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+            width: 32px;
+            height: 32px;
+    cursor: pointer;
+            font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+            transition: all 0.3s ease;
+            z-index: 10;
+}
+
+.delete-character-btn:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
+        }
+
+        .delete-character-btn:active {
+            transform: scale(0.95);
+}
+
 .character-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -966,7 +996,245 @@ h2 {
             font-style: italic;
             text-align: center;
             padding: 40px 20px;
+        }
+
+        /* Feats Section */
+        .character-feats {
+    margin-bottom: 30px;
 }
+
+        .character-feats h3 {
+    font-family: 'Cinzel', serif;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
+        }
+
+        .feats-list {
+            display: grid;
+    gap: 15px;
+}
+
+        .feat-item {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border-radius: 10px;
+    padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.3s ease;
+}
+
+        .feat-item:hover {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
+        .feat-header {
+    display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .feat-name {
+            color: #f39c12;
+    font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .feat-level {
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+
+        .feat-description {
+            color: #ecf0f1;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .no-feats {
+            color: #95a5a6;
+            font-style: italic;
+        text-align: center;
+    padding: 20px;
+        }
+
+        /* Spells Known Section */
+        .spells-known {
+            margin-top: 20px;
+        }
+
+        .spells-known h5 {
+            color: #f39c12;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+    font-family: 'Cinzel', serif;
+}
+
+        .spells-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .spell-item {
+            background: rgba(52, 73, 94, 0.5);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #ecf0f1;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+            align-items: center;
+}
+
+        .spell-name {
+            font-weight: 600;
+}
+
+        .spell-level {
+            color: #f39c12;
+            font-size: 0.8rem;
+}
+
+        /* Money Section */
+        .money-section {
+    margin-bottom: 30px;
+}
+
+        .money-section h4 {
+            color: #f39c12;
+    margin-bottom: 15px;
+            font-size: 1.2rem;
+    font-family: 'Cinzel', serif;
+}
+
+        .money-display {
+    display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+        .money-item {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .money-type {
+            display: block;
+            font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+        .money-amount {
+            display: block;
+            font-size: 1.2rem;
+        }
+
+        /* Equipment Sections */
+        .equipment-section, .inventory-section {
+    margin-bottom: 30px;
+}
+
+        .equipment-section h4, .inventory-section h4 {
+            color: #f39c12;
+    margin-bottom: 15px;
+            font-size: 1.2rem;
+    font-family: 'Cinzel', serif;
+}
+
+        .equipment-header {
+    display: flex;
+    justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .equipment-name {
+            font-weight: 600;
+            color: #ecf0f1;
+        }
+
+        .equipment-quantity {
+            color: #f39c12;
+            font-size: 0.9rem;
+        }
+
+        .equipment-description {
+            color: #bdc3c7;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .inventory-list {
+    display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+        .inventory-item {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 8px;
+            padding: 12px;
+    display: flex;
+    justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .inventory-name {
+            color: #ecf0f1;
+            font-weight: 600;
+        }
+
+        .inventory-quantity {
+            color: #f39c12;
+            font-size: 0.9rem;
+        }
+
+        .no-equipment, .no-inventory {
+            color: #95a5a6;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Notes Sections */
+        .backstory-section, .notes-section, .goals-section, .relationships-section {
+            margin-bottom: 25px;
+        }
+
+        .backstory-section h4, .notes-section h4, .goals-section h4, .relationships-section h4 {
+            color: #f39c12;
+    margin-bottom: 15px;
+            font-size: 1.2rem;
+    font-family: 'Cinzel', serif;
+}
+
+        .backstory-content, .goals-content, .relationships-content {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            padding: 20px;
+            color: #ecf0f1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+        .no-backstory, .no-goals, .no-relationships {
+            color: #95a5a6;
+            font-style: italic;
+    text-align: center;
+            padding: 20px;
+        }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {

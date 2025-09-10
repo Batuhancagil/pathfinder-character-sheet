@@ -357,7 +357,7 @@ class CharacterCardManager {
                         <p class="character-class">${summary.class} ${summary.level}</p>
                         <p class="character-ancestry">${summary.ancestry} ${summary.heritage}</p>
                     </div>
-                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">✕</button>
+                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">🗑️</button>
                 </div>
                 <div class="character-stats">
                     <div class="stat">
@@ -566,15 +566,16 @@ class CharacterCardManager {
         const summary = this.importer.getCharacterSummary(character);
         
         return `
-            <div class="character-feats">
-                <h3>Feats</h3>
-                <div class="feats-list">
-                    ${character.feats && Array.isArray(character.feats) ? character.feats.map(feat => `
-                        <div class="feat-item">
-                            <span class="feat-name">${feat[0]}</span>
-                            <span class="feat-level">Level ${feat[3]}</span>
+            <div class="character-abilities-section">
+                <h3>Ability Scores</h3>
+                <div class="abilities-grid">
+                    ${summary.abilities ? Object.entries(summary.abilities).map(([ability, score]) => `
+                        <div class="ability-score">
+                            <div class="ability-name">${ability.toUpperCase()}</div>
+                            <div class="ability-value">${score}</div>
+                            <div class="ability-modifier">${summary.abilityModifiers && summary.abilityModifiers[ability] >= 0 ? '+' : ''}${summary.abilityModifiers ? summary.abilityModifiers[ability] : 0}</div>
                         </div>
-                    `).join('') : '<div class="no-feats">No feats available</div>'}
+                    `).join('') : ''}
                 </div>
             </div>
 
@@ -587,6 +588,21 @@ class CharacterCardManager {
                             <span class="skill-value">${value}</span>
                         </div>
                     `).join('') : '<div class="no-skills">No skills available</div>'}
+                </div>
+            </div>
+
+            <div class="character-feats">
+                <h3>Feats</h3>
+                <div class="feats-list">
+                    ${character.feats && Array.isArray(character.feats) ? character.feats.map(feat => `
+                        <div class="feat-item">
+                            <div class="feat-header">
+                                <span class="feat-name">${feat[0]}</span>
+                                <span class="feat-level">Level ${feat[3]}</span>
+                            </div>
+                            <div class="feat-description">${feat[1] || 'No description available'}</div>
+                        </div>
+                    `).join('') : '<div class="no-feats">No feats available</div>'}
                 </div>
             </div>
         `;
@@ -602,11 +618,24 @@ class CharacterCardManager {
                         <div class="spell-levels">
                             ${caster.perDay && Array.isArray(caster.perDay) ? caster.perDay.map((slots, level) => `
                                 <div class="spell-level">
-                                    <span class="level">${level}</span>
+                                    <span class="level">Level ${level}</span>
                                     <span class="slots">${slots} slots</span>
                                 </div>
                             `).join('') : ''}
                         </div>
+                        ${caster.spells && Array.isArray(caster.spells) ? `
+                            <div class="spells-known">
+                                <h5>Known Spells</h5>
+                                <div class="spells-list">
+                                    ${caster.spells.map(spell => `
+                                        <div class="spell-item">
+                                            <span class="spell-name">${spell.name}</span>
+                                            <span class="spell-level">Level ${spell.level}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                 `).join('') : '<div class="no-spells">No spellcasting abilities</div>'}
             </div>
@@ -614,12 +643,54 @@ class CharacterCardManager {
     }
 
     renderEquipmentTab(character) {
+        const summary = this.importer.getCharacterSummary(character);
+        
         return `
             <div class="character-equipment">
                 <h3>Equipment & Inventory</h3>
-                <div class="equipment-list">
-                    <div class="equipment-item">
-                        <span class="equipment-name">Equipment placeholder</span>
+                
+                <div class="money-section">
+                    <h4>Money</h4>
+                    <div class="money-display">
+                        <div class="money-item">
+                            <span class="money-type">Gold</span>
+                            <span class="money-amount">${character.money?.gold || 0} gp</span>
+                        </div>
+                        <div class="money-item">
+                            <span class="money-type">Silver</span>
+                            <span class="money-amount">${character.money?.silver || 0} sp</span>
+                        </div>
+                        <div class="money-item">
+                            <span class="money-type">Copper</span>
+                            <span class="money-amount">${character.money?.copper || 0} cp</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equipment-section">
+                    <h4>Equipment</h4>
+                    <div class="equipment-list">
+                        ${character.equipment && Array.isArray(character.equipment) ? character.equipment.map(item => `
+                            <div class="equipment-item">
+                                <div class="equipment-header">
+                                    <span class="equipment-name">${item.name || 'Unknown Item'}</span>
+                                    <span class="equipment-quantity">${item.quantity || 1}</span>
+                                </div>
+                                ${item.description ? `<div class="equipment-description">${item.description}</div>` : ''}
+                            </div>
+                        `).join('') : '<div class="no-equipment">No equipment available</div>'}
+                    </div>
+                </div>
+
+                <div class="inventory-section">
+                    <h4>Inventory</h4>
+                    <div class="inventory-list">
+                        ${character.inventory && Array.isArray(character.inventory) ? character.inventory.map(item => `
+                            <div class="inventory-item">
+                                <span class="inventory-name">${item.name || 'Unknown Item'}</span>
+                                <span class="inventory-quantity">${item.quantity || 1}</span>
+                            </div>
+                        `).join('') : '<div class="no-inventory">No inventory items</div>'}
                     </div>
                 </div>
             </div>
@@ -630,8 +701,33 @@ class CharacterCardManager {
         return `
             <div class="character-notes">
                 <h3>Notes & Backstory</h3>
-                <div class="notes-content">
-                    <p>Notes and backstory will be displayed here.</p>
+                
+                <div class="backstory-section">
+                    <h4>Character Backstory</h4>
+                    <div class="backstory-content">
+                        ${character.backstory || '<p class="no-backstory">No backstory available</p>'}
+                    </div>
+                </div>
+
+                <div class="notes-section">
+                    <h4>Player Notes</h4>
+                    <div class="notes-content">
+                        ${character.notes || '<p class="no-notes">No notes available</p>'}
+                    </div>
+                </div>
+
+                <div class="goals-section">
+                    <h4>Character Goals</h4>
+                    <div class="goals-content">
+                        ${character.goals || '<p class="no-goals">No goals set</p>'}
+                    </div>
+                </div>
+
+                <div class="relationships-section">
+                    <h4>Relationships</h4>
+                    <div class="relationships-content">
+                        ${character.relationships || '<p class="no-relationships">No relationships defined</p>'}
+                    </div>
                 </div>
             </div>
         `;
