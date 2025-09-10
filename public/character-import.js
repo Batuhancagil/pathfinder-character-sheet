@@ -39,9 +39,14 @@ class CharacterImporter {
                                 ? JSON.parse(char.character_data) 
                                 : char.character_data;
                             
+                            // Keep the database UUID as the main ID, but also preserve the original character data
                             return {
-                                ...char,
-                                ...characterData
+                                ...characterData,
+                                id: char.id, // Use database UUID as the main ID
+                                databaseId: char.id, // Keep reference to database ID
+                                user_id: char.user_id,
+                                created_at: char.created_at,
+                                updated_at: char.updated_at
                             };
                         }
                         return char;
@@ -283,7 +288,11 @@ class CharacterImporter {
     // Delete character
     async deleteCharacter(id) {
         console.log('Deleting character:', id);
-        console.log('Available characters:', this.importedCharacters.map(c => ({ id: c.id, name: c.name })));
+        console.log('Available characters:', this.importedCharacters.map(c => ({ 
+            id: c.id, 
+            name: c.name,
+            isUuid: this.isValidUuid(c.id)
+        })));
         
         // Find the character to get the correct database ID
         const character = this.importedCharacters.find(char => char.id === id);
@@ -297,9 +306,19 @@ class CharacterImporter {
         // Try to delete from database if user is authenticated
         if (window.authManager && window.authManager.isUserAuthenticated()) {
             try {
-                // Use the database ID if available, otherwise use the local ID
-                const dbId = character.id; // This should be the database UUID
-                console.log('Attempting to delete from database with ID:', dbId);
+                // Check if the ID is a valid UUID (database ID)
+                let dbId = character.id;
+                
+                // If it's not a UUID, it might be a local ID, try to find the database ID
+                if (!this.isValidUuid(character.id)) {
+                    console.log('Local ID detected, looking for database ID...');
+                    // For database characters, the ID should already be the UUID
+                    // But if it's a local character, we can't delete from database
+                    console.log('Cannot delete local character from database');
+                    return false;
+                }
+                
+                console.log('Attempting to delete from database with UUID:', dbId);
                 
                 const response = await fetch(`/api/characters/${dbId}`, {
                     method: 'DELETE',
@@ -332,6 +351,12 @@ class CharacterImporter {
             return true;
         }
         return false;
+    }
+
+    // Helper function to check if a string is a valid UUID
+    isValidUuid(str) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        return uuidRegex.test(str);
     }
 
     // Update character
