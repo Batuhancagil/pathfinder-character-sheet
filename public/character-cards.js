@@ -41,7 +41,7 @@ class CharacterCardManager {
 
     setupEventListeners() {
         // Character import button - use event delegation
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
             if (e.target && e.target.id === 'importCharacterBtn') {
                 e.preventDefault();
                 e.stopPropagation();
@@ -96,10 +96,10 @@ class CharacterCardManager {
         });
 
         // Import dialog buttons
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
             if (e.target && e.target.id === 'importBtn') {
                 console.log('Import dialog button clicked');
-                this.handleImport();
+                await this.handleImport();
             }
             if (e.target && e.target.id === 'cancelImportBtn') {
                 const dialog = e.target.closest('.import-dialog');
@@ -178,7 +178,7 @@ class CharacterCardManager {
         });
     }
 
-    handleImport() {
+    async handleImport() {
         console.log('Handling import');
         
         // First, let's check if the dialog still exists
@@ -241,12 +241,12 @@ class CharacterCardManager {
             }
 
             console.log('Importing character...');
-            const character = this.importer.importCharacter(jsonData);
+            const character = await this.importer.importCharacter(jsonData);
             console.log('Character imported:', character);
             
             if (character) {
                 console.log('Character import successful, re-rendering cards');
-                this.renderCharacterCards();
+                await this.refreshCharacters();
                 console.log('Cards re-rendered, selecting character');
                 this.selectCharacter(character.id);
                 console.log('Character selected, closing dialog');
