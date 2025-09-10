@@ -105,6 +105,15 @@ class CharacterCardManager {
             }
         });
 
+        // Tab switching - use event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('tab-button')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleTabSwitch(e.target);
+            }
+        });
+
         // Import dialog buttons
         document.addEventListener('click', async (e) => {
             if (e.target && e.target.id === 'importBtn') {
@@ -346,7 +355,7 @@ class CharacterCardManager {
                         <p class="character-class">${summary.class} ${summary.level}</p>
                         <p class="character-ancestry">${summary.ancestry} ${summary.heritage}</p>
                     </div>
-                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">🗑️</button>
+                    <button class="delete-character-btn" data-character-id="${character.id}" title="Delete Character">🗑</button>
                 </div>
                 <div class="character-stats">
                     <div class="stat">
@@ -459,22 +468,29 @@ class CharacterCardManager {
     }
 
     setupTabSwitching() {
+        // Tab switching is now handled by event delegation in setupEventListeners
+        // This method is kept for compatibility but the actual switching is done in handleTabSwitch
+    }
+
+    handleTabSwitch(button) {
+        const targetTab = button.dataset.tab;
+        console.log('Switching to tab:', targetTab);
+        
+        // Remove active class from all buttons and contents
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetTab = button.dataset.tab;
-                
-                // Remove active class from all buttons and contents
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-                
-                // Add active class to clicked button and corresponding content
-                button.classList.add('active');
-                document.getElementById(`${targetTab}-tab`).classList.add('active');
-            });
-        });
+        
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        button.classList.add('active');
+        const targetContent = document.getElementById(`${targetTab}-tab`);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        } else {
+            console.error('Target tab content not found:', `${targetTab}-tab`);
+        }
     }
 
     renderOverviewTab(character) {
