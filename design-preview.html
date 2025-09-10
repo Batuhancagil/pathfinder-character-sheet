@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinder Character Sheet - Design Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        /* Header Styles */
+        .character-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .character-basic-info h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: #f39c12;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .character-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .character-details span {
+            background: rgba(52, 73, 94, 0.8);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #34495e;
+        }
+
+        .level {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .class {
+            color: #3498db;
+            font-weight: 600;
+        }
+
+        .ancestry {
+            color: #9b59b6;
+            font-weight: 600;
+        }
+
+        .character-portrait {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #bdc3c7;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        .tab-button:hover {
+            background: rgba(52, 73, 94, 0.5);
+            color: #ecf0f1;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(44, 62, 80, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Section Headers */
+        h2 {
+            font-family: 'Cinzel', serif;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-name {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+
+        .stat-modifier {
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+
+        /* Ability Scores */
+        .ability-scores {
+            margin-bottom: 25px;
+        }
+
+        .ability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .ability-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ability-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .ability-name {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .ability-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .ability-modifier {
+            font-size: 1rem;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        /* Character Cards */
+        .character-cards-container {
+            margin-bottom: 30px;
+        }
+
+        .character-cards-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .character-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .character-card {
+            background: linear-gradient(135deg, #2C1810 0%, #3D2817 100%);
+            border: 2px solid #8B4513;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(139, 69, 19, 0.3);
+            border-color: #D4AF37;
+        }
+
+        .character-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .character-class-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+        }
+
+        .character-info h4 {
+            color: #D4AF37;
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+        }
+
+        .character-class {
+            color: #C0C0C0;
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+        }
+
+        .character-ancestry {
+            color: #A0A0A0;
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #A0A0A0;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            color: #D4AF37;
+            font-weight: bold;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .character-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .character-basic-info h1 {
+                font-size: 2rem;
+            }
+            
+            .character-details {
+                justify-content: center;
+            }
+            
+            .tab-navigation {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .tab-button {
+                min-width: 80px;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+            
+            .ability-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .character-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Character Header -->
+        <div class="character-header">
+            <div class="character-basic-info">
+                <h1>Thorin Ironbeard</h1>
+                <div class="character-details">
+                    <span class="level">Level 5</span>
+                    <span class="class">Fighter</span>
+                    <span class="ancestry">Dwarf</span>
+                </div>
+            </div>
+            <div class="character-portrait">⚔️</div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active">Overview</button>
+            <button class="tab-button">Abilities</button>
+            <button class="tab-button">Combat</button>
+            <button class="tab-button">Spells</button>
+            <button class="tab-button">Equipment</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="tab-content active">
+                <h2>Character Overview</h2>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-name">HP</div>
+                        <div class="stat-value">45</div>
+                        <div class="stat-modifier">+5 CON</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">AC</div>
+                        <div class="stat-value">18</div>
+                        <div class="stat-modifier">+3 DEX</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">Speed</div>
+                        <div class="stat-value">25</div>
+                        <div class="stat-modifier">ft</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">Perception</div>
+                        <div class="stat-value">+8</div>
+                        <div class="stat-modifier">Expert</div>
+                    </div>
+                </div>
+
+                <!-- Ability Scores -->
+                <div class="ability-scores">
+                    <h2>Ability Scores</h2>
+                    <div class="ability-grid">
+                        <div class="ability-card">
+                            <div class="ability-name">STR</div>
+                            <div class="ability-value">18</div>
+                            <div class="ability-modifier">+4</div>
+                        </div>
+                        <div class="ability-card">
+                            <div class="ability-name">DEX</div>
+                            <div class="ability-value">16</div>
+                            <div class="ability-modifier">+3</div>
+                        </div>
+                        <div class="ability-card">
+                            <div class="ability-name">CON</div>
+                            <div class="ability-value">14</div>
+                            <div class="ability-modifier">+2</div>
+                        </div>
+                        <div class="ability-card">
+                            <div class="ability-name">INT</div>
+                            <div class="ability-value">12</div>
+                            <div class="ability-modifier">+1</div>
+                        </div>
+                        <div class="ability-card">
+                            <div class="ability-name">WIS</div>
+                            <div class="ability-value">13</div>
+                            <div class="ability-modifier">+1</div>
+                        </div>
+                        <div class="ability-card">
+                            <div class="ability-name">CHA</div>
+                            <div class="ability-value">10</div>
+                            <div class="ability-modifier">+0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character Cards Section -->
+        <div class="character-cards-container">
+            <div class="character-cards-header">
+                <h2>My Characters</h2>
+            </div>
+            <div class="character-cards-grid">
+                <div class="character-card">
+                    <div class="character-card-header">
+                        <div class="character-class-icon">⚔️</div>
+                        <div class="character-info">
+                            <h4>Thorin Ironbeard</h4>
+                            <div class="character-class">Fighter</div>
+                            <div class="character-ancestry">Dwarf</div>
+                        </div>
+                    </div>
+                    <div class="character-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Level</div>
+                            <div class="stat-value">5</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">HP</div>
+                            <div class="stat-value">45</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">AC</div>
+                            <div class="stat-value">18</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-card">
+                    <div class="character-card-header">
+                        <div class="character-class-icon">🧙‍♂️</div>
+                        <div class="character-info">
+                            <h4>Elara Moonwhisper</h4>
+                            <div class="character-class">Wizard</div>
+                            <div class="character-ancestry">Elf</div>
+                        </div>
+                    </div>
+                    <div class="character-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Level</div>
+                            <div class="stat-value">3</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">HP</div>
+                            <div class="stat-value">28</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">AC</div>
+                            <div class="stat-value">14</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-card">
+                    <div class="character-card-header">
+                        <div class="character-class-icon">🏹</div>
+                        <div class="character-info">
+                            <h4>Rogar Swiftfoot</h4>
+                            <div class="character-class">Rogue</div>
+                            <div class="character-ancestry">Halfling</div>
+                        </div>
+                    </div>
+                    <div class="character-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Level</div>
+                            <div class="stat-value">4</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">HP</div>
+                            <div class="stat-value">32</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">AC</div>
+                            <div class="stat-value">16</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active from all buttons
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                // Add active to clicked button
+                button.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
