@@ -66,7 +66,7 @@ class CharacterCardManager {
 
         // Character selection - click on card
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.character-card') && !e.target.closest('.character-sheet-tabs')) {
+            if (e.target.closest('.character-card') && !e.target.closest('.character-sheet-tabs') && !e.target.classList.contains('tab-button')) {
                 const card = e.target.closest('.character-card');
                 const characterId = card.dataset.characterId;
                 if (characterId) {
@@ -113,6 +113,7 @@ class CharacterCardManager {
                 e.stopImmediatePropagation();
                 console.log('Tab button clicked:', e.target.dataset.tab);
                 this.handleTabSwitch(e.target);
+                return false; // Prevent any further event handling
             }
         });
 
