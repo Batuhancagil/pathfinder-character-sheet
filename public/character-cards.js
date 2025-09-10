@@ -334,13 +334,13 @@ class CharacterCardManager {
                     </div>
                 </div>
                 <div class="character-abilities">
-                    ${Object.entries(summary.abilities).map(([ability, score]) => `
+                    ${summary.abilities ? Object.entries(summary.abilities).map(([ability, score]) => `
                         <div class="ability">
                             <span class="ability-name">${ability.toUpperCase()}</span>
                             <span class="ability-score">${score}</span>
-                            <span class="ability-modifier">${summary.abilityModifiers[ability] >= 0 ? '+' : ''}${summary.abilityModifiers[ability]}</span>
+                            <span class="ability-modifier">${summary.abilityModifiers && summary.abilityModifiers[ability] >= 0 ? '+' : ''}${summary.abilityModifiers ? summary.abilityModifiers[ability] : 0}</span>
                         </div>
-                    `).join('')}
+                    `).join('') : ''}
                 </div>
             </div>
         `;
