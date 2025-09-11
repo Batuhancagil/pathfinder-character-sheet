@@ -6,6 +6,7 @@
     <title>Pathfinder 2e Character Sheet - Multiplayer</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
     <!-- Login/Register Modal -->
@@ -115,7 +116,8 @@
                 <div class="character-selection-header">
                     <h2>Character Management</h2>
                     <div class="selection-actions">
-                        <button class="btn-primary" id="importCharacterBtn">Import Character</button>
+                        <button class="btn-primary" id="uploadPdfBtn">Upload PDF Character</button>
+                        <button class="btn-secondary" id="importCharacterBtn">Import JSON</button>
                         <button class="btn-secondary" id="exportCharacterBtn">Export Character</button>
                         <button class="btn-small" id="refreshCharactersBtn">Refresh</button>
                     </div>
@@ -255,6 +257,8 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="pdf-parser.js"></script>
+    <script src="pdf-upload.js"></script>
     <script src="character-import.js"></script>
     <script src="character-cards.js"></script>
     <script src="auth.js"></script>
