@@ -118,28 +118,30 @@ class PDFParser {
         // Parse equipment
         this.parseEquipment(text, character);
         
-        // Parse additional Pathfinder 2e specific fields
+        // Parse additional Pathfinder 2e specific fields - only essential ones for now
         this.parseDefenses(text, character);
         this.parseLanguages(text, character);
         this.parsePerception(text, character);
-        this.parseSpeed(text, character);
+        // this.parseSpeed(text, character); // Already parsed in parseCombatStats
         this.parseStrikes(text, character);
         this.parseWeaponProficiencies(text, character);
         this.parseClassDC(text, character);
-        this.parseReminders(text, character);
-        this.parseAncestryFeats(text, character);
-        this.parseClassAbilities(text, character);
-        this.parseInventory(text, character);
-        this.parseBulk(text, character);
-        this.parseWealth(text, character);
-        this.parseActions(text, character);
-        this.parseFreeActions(text, character);
-        this.parseMagicalTradition(text, character);
-        this.parseSpellSlots(text, character);
-        this.parseSpellStatistics(text, character);
-        this.parseFocusSpells(text, character);
-        this.parseInnateSpells(text, character);
-        this.parseRituals(text, character);
+        
+        // Comment out heavy parsing for now to improve performance
+        // this.parseReminders(text, character);
+        // this.parseAncestryFeats(text, character);
+        // this.parseClassAbilities(text, character);
+        // this.parseInventory(text, character);
+        // this.parseBulk(text, character);
+        // this.parseWealth(text, character);
+        // this.parseActions(text, character);
+        // this.parseFreeActions(text, character);
+        // this.parseMagicalTradition(text, character);
+        // this.parseSpellSlots(text, character);
+        // this.parseSpellStatistics(text, character);
+        // this.parseFocusSpells(text, character);
+        // this.parseInnateSpells(text, character);
+        // this.parseRituals(text, character);
 
         console.log('Parsed character data:', character);
         return character;
@@ -384,69 +386,39 @@ class PDFParser {
     }
 
     parseFeats(text, character) {
-        // Look for feat patterns
-        const featPatterns = [
-            /(?:Feat|Feats)[:\s]*([^.\n]+)/gi,
-            /([A-Za-z\s]+)\s+\(feat\)/gi
-        ];
-
-        featPatterns.forEach(pattern => {
-            let match;
-            while ((match = pattern.exec(text)) !== null) {
-                const featText = match[1].trim();
-                if (featText && featText.length > 3) {
-                    character.feats.push({
-                        name: featText,
-                        level: character.level || 1,
-                        description: ''
-                    });
-                }
-            }
-        });
+        // Look for feat patterns - simplified to avoid infinite loops
+        const featMatch = text.match(/(?:Feat|Feats)[:\s]*([^.\n]+)/i);
+        if (featMatch && featMatch[1] && featMatch[1].trim().length > 3) {
+            character.feats.push({
+                name: featMatch[1].trim(),
+                level: character.level || 1,
+                description: ''
+            });
+        }
     }
 
     parseSpells(text, character) {
-        // Look for spell patterns
-        const spellPatterns = [
-            /(?:Spell|Spells)[:\s]*([^.\n]+)/gi,
-            /([A-Za-z\s]+)\s+\(spell\)/gi
-        ];
-
-        spellPatterns.forEach(pattern => {
-            let match;
-            while ((match = pattern.exec(text)) !== null) {
-                const spellText = match[1].trim();
-                if (spellText && spellText.length > 3) {
-                    character.spells.push({
-                        name: spellText,
-                        level: 1,
-                        description: ''
-                    });
-                }
-            }
-        });
+        // Look for spell patterns - simplified to avoid infinite loops
+        const spellMatch = text.match(/(?:Spell|Spells)[:\s]*([^.\n]+)/i);
+        if (spellMatch && spellMatch[1] && spellMatch[1].trim().length > 3) {
+            character.spells.push({
+                name: spellMatch[1].trim(),
+                level: 1,
+                description: ''
+            });
+        }
     }
 
     parseEquipment(text, character) {
-        // Look for equipment patterns
-        const equipmentPatterns = [
-            /(?:Equipment|Gear)[:\s]*([^.\n]+)/gi,
-            /([A-Za-z\s]+)\s+\(equipment\)/gi
-        ];
-
-        equipmentPatterns.forEach(pattern => {
-            let match;
-            while ((match = pattern.exec(text)) !== null) {
-                const equipmentText = match[1].trim();
-                if (equipmentText && equipmentText.length > 3) {
-                    character.equipment.push({
-                        name: equipmentText,
-                        quantity: 1,
-                        description: ''
-                    });
-                }
-            }
-        });
+        // Look for equipment patterns - simplified to avoid infinite loops
+        const equipmentMatch = text.match(/(?:Equipment|Gear)[:\s]*([^.\n]+)/i);
+        if (equipmentMatch && equipmentMatch[1] && equipmentMatch[1].trim().length > 3) {
+            character.equipment.push({
+                name: equipmentMatch[1].trim(),
+                quantity: 1,
+                description: ''
+            });
+        }
     }
 
     // New Pathfinder 2e specific parsing methods
@@ -535,23 +507,15 @@ class PDFParser {
     parseStrikes(text, character) {
         console.log('Parsing strikes...');
         
-        const strikePatterns = [
-            /([A-Za-z\s]+)\s+([+-]?\d+)\s+to\s+hit/i,
-            /Strike[:\s]*([A-Za-z\s]+)/i
-        ];
-        
-        for (const pattern of strikePatterns) {
-            let match;
-            while ((match = pattern.exec(text)) !== null) {
-                if (match[1] && match[1].trim().length > 2) {
-                    character.strikes.push({
-                        name: match[1].trim(),
-                        bonus: match[2] ? parseInt(match[2]) : 0,
-                        damage: '',
-                        type: ''
-                    });
-                }
-            }
+        // Simplified pattern matching to avoid infinite loops
+        const strikeMatch = text.match(/([A-Za-z\s]+)\s+([+-]?\d+)\s+to\s+hit/i);
+        if (strikeMatch && strikeMatch[1] && strikeMatch[1].trim().length > 2) {
+            character.strikes.push({
+                name: strikeMatch[1].trim(),
+                bonus: parseInt(strikeMatch[2]) || 0,
+                damage: '',
+                type: ''
+            });
         }
         
         console.log('Found strikes:', character.strikes.length);
