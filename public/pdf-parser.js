@@ -73,7 +73,28 @@ class PDFParser {
             feats: [],
             spells: [],
             equipment: [],
-            inventory: []
+            inventory: [],
+            // New Pathfinder 2e fields
+            defenses: {},
+            languages: [],
+            perception: 0,
+            strikes: [],
+            weaponProficiencies: [],
+            classDC: 0,
+            reminders: [],
+            ancestryFeats: [],
+            classAbilities: [],
+            bulk: { light: 0, bulk: 0, encumbered: 0, maximum: 0 },
+            wealth: { copper: 0, silver: 0, gold: 0, platinum: 0 },
+            actions: [],
+            freeActions: [],
+            reactions: [],
+            magicalTradition: '',
+            spellSlots: {},
+            spellStatistics: {},
+            focusSpells: [],
+            innateSpells: [],
+            rituals: []
         };
 
         // Parse basic information
@@ -96,6 +117,29 @@ class PDFParser {
         
         // Parse equipment
         this.parseEquipment(text, character);
+        
+        // Parse additional Pathfinder 2e specific fields
+        this.parseDefenses(text, character);
+        this.parseLanguages(text, character);
+        this.parsePerception(text, character);
+        this.parseSpeed(text, character);
+        this.parseStrikes(text, character);
+        this.parseWeaponProficiencies(text, character);
+        this.parseClassDC(text, character);
+        this.parseReminders(text, character);
+        this.parseAncestryFeats(text, character);
+        this.parseClassAbilities(text, character);
+        this.parseInventory(text, character);
+        this.parseBulk(text, character);
+        this.parseWealth(text, character);
+        this.parseActions(text, character);
+        this.parseFreeActions(text, character);
+        this.parseMagicalTradition(text, character);
+        this.parseSpellSlots(text, character);
+        this.parseSpellStatistics(text, character);
+        this.parseFocusSpells(text, character);
+        this.parseInnateSpells(text, character);
+        this.parseRituals(text, character);
 
         console.log('Parsed character data:', character);
         return character;
@@ -403,6 +447,443 @@ class PDFParser {
                 }
             }
         });
+    }
+
+    // New Pathfinder 2e specific parsing methods
+    parseDefenses(text, character) {
+        console.log('Parsing defenses...');
+        
+        // Parse Fortitude, Reflex, Will saves
+        const defensePatterns = [
+            /Fortitude[:\s]*([+-]?\d+)/i,
+            /Reflex[:\s]*([+-]?\d+)/i,
+            /Will[:\s]*([+-]?\d+)/i
+        ];
+        
+        character.defenses = {
+            fortitude: 0,
+            reflex: 0,
+            will: 0
+        };
+        
+        const defenseNames = ['fortitude', 'reflex', 'will'];
+        defenseNames.forEach((defense, index) => {
+            const match = text.match(defensePatterns[index]);
+            if (match) {
+                character.defenses[defense] = parseInt(match[1]);
+                console.log(`Found ${defense}:`, character.defenses[defense]);
+            }
+        });
+    }
+
+    parseLanguages(text, character) {
+        console.log('Parsing languages...');
+        
+        const languagePatterns = [
+            /(?:Languages|Language)[:\s]*([^.\n]+)/i,
+            /Common,?\s*([^.\n]+)/i
+        ];
+        
+        for (const pattern of languagePatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const languages = match[1].split(/[,\n]/).map(lang => lang.trim()).filter(lang => lang.length > 0);
+                character.languages = languages;
+                console.log('Found languages:', character.languages);
+                break;
+            }
+        }
+    }
+
+    parsePerception(text, character) {
+        console.log('Parsing perception...');
+        
+        const perceptionPatterns = [
+            /Perception[:\s]*([+-]?\d+)/i,
+            /Perception\s+([+-]?\d+)/i
+        ];
+        
+        for (const pattern of perceptionPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                character.perception = parseInt(match[1]);
+                console.log('Found perception:', character.perception);
+                break;
+            }
+        }
+    }
+
+    parseSpeed(text, character) {
+        // Speed is already parsed in parseCombatStats, but let's enhance it
+        console.log('Parsing speed details...');
+        
+        const speedPatterns = [
+            /Speed[:\s]*(\d+)\s*feet/i,
+            /Speed[:\s]*(\d+)/i
+        ];
+        
+        for (const pattern of speedPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                character.speed = parseInt(match[1]);
+                console.log('Found speed:', character.speed);
+                break;
+            }
+        }
+    }
+
+    parseStrikes(text, character) {
+        console.log('Parsing strikes...');
+        
+        const strikePatterns = [
+            /([A-Za-z\s]+)\s+([+-]?\d+)\s+to\s+hit/i,
+            /Strike[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of strikePatterns) {
+            let match;
+            while ((match = pattern.exec(text)) !== null) {
+                if (match[1] && match[1].trim().length > 2) {
+                    character.strikes.push({
+                        name: match[1].trim(),
+                        bonus: match[2] ? parseInt(match[2]) : 0,
+                        damage: '',
+                        type: ''
+                    });
+                }
+            }
+        }
+        
+        console.log('Found strikes:', character.strikes.length);
+    }
+
+    parseWeaponProficiencies(text, character) {
+        console.log('Parsing weapon proficiencies...');
+        
+        const proficiencyPatterns = [
+            /(?:Weapon Proficiencies|Proficiencies)[:\s]*([^.\n]+)/i,
+            /(?:Simple|Martial|Advanced)\s+Weapons/i
+        ];
+        
+        for (const pattern of proficiencyPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const proficiencies = match[1].split(/[,\n]/).map(prof => prof.trim()).filter(prof => prof.length > 0);
+                character.weaponProficiencies = proficiencies;
+                console.log('Found weapon proficiencies:', character.weaponProficiencies);
+                break;
+            }
+        }
+    }
+
+    parseClassDC(text, character) {
+        console.log('Parsing class DC...');
+        
+        const classDCPatterns = [
+            /Class DC[:\s]*(\d+)/i,
+            /DC[:\s]*(\d+)/i
+        ];
+        
+        for (const pattern of classDCPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                character.classDC = parseInt(match[1]);
+                console.log('Found class DC:', character.classDC);
+                break;
+            }
+        }
+    }
+
+    parseReminders(text, character) {
+        console.log('Parsing reminders...');
+        
+        const reminderPatterns = [
+            /(?:Reminders|Notes)[:\s]*([^.\n]+)/i,
+            /Remember[:\s]*([^.\n]+)/i
+        ];
+        
+        for (const pattern of reminderPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const reminders = match[1].split(/[,\n]/).map(rem => rem.trim()).filter(rem => rem.length > 0);
+                character.reminders = reminders;
+                console.log('Found reminders:', character.reminders);
+                break;
+            }
+        }
+    }
+
+    parseAncestryFeats(text, character) {
+        console.log('Parsing ancestry feats...');
+        
+        const ancestryFeatPatterns = [
+            /(?:Ancestry Feats|Ancestry and General Feats)[:\s]*([^.\n]+)/i,
+            /Ancestry[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of ancestryFeatPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const feats = match[1].split(/[,\n]/).map(feat => feat.trim()).filter(feat => feat.length > 0);
+                character.ancestryFeats = feats;
+                console.log('Found ancestry feats:', character.ancestryFeats);
+                break;
+            }
+        }
+    }
+
+    parseClassAbilities(text, character) {
+        console.log('Parsing class abilities...');
+        
+        const classAbilityPatterns = [
+            /(?:Class Abilities|Class Features)[:\s]*([^.\n]+)/i,
+            /(?:Abilities|Features)[:\s]*([^.\n]+)/i
+        ];
+        
+        for (const pattern of classAbilityPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const abilities = match[1].split(/[,\n]/).map(ability => ability.trim()).filter(ability => ability.length > 0);
+                character.classAbilities = abilities;
+                console.log('Found class abilities:', character.classAbilities);
+                break;
+            }
+        }
+    }
+
+    parseInventory(text, character) {
+        console.log('Parsing inventory...');
+        
+        const inventoryPatterns = [
+            /(?:Inventory|Equipment)[:\s]*([^.\n]+)/i,
+            /Gear[:\s]*([^.\n]+)/i
+        ];
+        
+        for (const pattern of inventoryPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const items = match[1].split(/[,\n]/).map(item => item.trim()).filter(item => item.length > 0);
+                character.inventory = items.map(item => ({
+                    name: item,
+                    quantity: 1,
+                    bulk: 0
+                }));
+                console.log('Found inventory items:', character.inventory.length);
+                break;
+            }
+        }
+    }
+
+    parseBulk(text, character) {
+        console.log('Parsing bulk...');
+        
+        const bulkPatterns = [
+            /Bulk[:\s]*(\d+\.?\d*)/i,
+            /Light[:\s]*(\d+\.?\d*)/i,
+            /Encumbered[:\s]*(\d+\.?\d*)/i
+        ];
+        
+        character.bulk = {
+            light: 0,
+            bulk: 0,
+            encumbered: 0,
+            maximum: 0
+        };
+        
+        const bulkKeys = ['bulk', 'light', 'encumbered'];
+        bulkKeys.forEach((key, index) => {
+            const match = text.match(bulkPatterns[index]);
+            if (match) {
+                character.bulk[key] = parseFloat(match[1]);
+                console.log(`Found ${key} bulk:`, character.bulk[key]);
+            }
+        });
+    }
+
+    parseWealth(text, character) {
+        console.log('Parsing wealth...');
+        
+        const wealthPatterns = [
+            /Copper[:\s]*(\d+)/i,
+            /Silver[:\s]*(\d+)/i,
+            /Gold[:\s]*(\d+)/i,
+            /Platinum[:\s]*(\d+)/i
+        ];
+        
+        character.wealth = {
+            copper: 0,
+            silver: 0,
+            gold: 0,
+            platinum: 0
+        };
+        
+        const wealthKeys = ['copper', 'silver', 'gold', 'platinum'];
+        wealthKeys.forEach((key, index) => {
+            const match = text.match(wealthPatterns[index]);
+            if (match) {
+                character.wealth[key] = parseInt(match[1]);
+                console.log(`Found ${key}:`, character.wealth[key]);
+            }
+        });
+    }
+
+    parseActions(text, character) {
+        console.log('Parsing actions...');
+        
+        const actionPatterns = [
+            /(?:Actions|Activities)[:\s]*([^.\n]+)/i,
+            /Action[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of actionPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const actions = match[1].split(/[,\n]/).map(action => action.trim()).filter(action => action.length > 0);
+                character.actions = actions;
+                console.log('Found actions:', character.actions);
+                break;
+            }
+        }
+    }
+
+    parseFreeActions(text, character) {
+        console.log('Parsing free actions and reactions...');
+        
+        const freeActionPatterns = [
+            /(?:Free Actions|Reactions)[:\s]*([^.\n]+)/i,
+            /Reaction[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of freeActionPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const actions = match[1].split(/[,\n]/).map(action => action.trim()).filter(action => action.length > 0);
+                character.freeActions = actions;
+                console.log('Found free actions:', character.freeActions);
+                break;
+            }
+        }
+    }
+
+    parseMagicalTradition(text, character) {
+        console.log('Parsing magical tradition...');
+        
+        const traditionPatterns = [
+            /(?:Magical Tradition|Tradition)[:\s]*([A-Za-z\s]+)/i,
+            /(?:Arcane|Divine|Occult|Primal)/i
+        ];
+        
+        for (const pattern of traditionPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                character.magicalTradition = match[1].trim();
+                console.log('Found magical tradition:', character.magicalTradition);
+                break;
+            }
+        }
+    }
+
+    parseSpellSlots(text, character) {
+        console.log('Parsing spell slots...');
+        
+        const spellSlotPatterns = [
+            /1st[:\s]*(\d+)/i,
+            /2nd[:\s]*(\d+)/i,
+            /3rd[:\s]*(\d+)/i,
+            /4th[:\s]*(\d+)/i,
+            /5th[:\s]*(\d+)/i
+        ];
+        
+        character.spellSlots = {};
+        
+        const levels = ['1st', '2nd', '3rd', '4th', '5th'];
+        levels.forEach((level, index) => {
+            const match = text.match(spellSlotPatterns[index]);
+            if (match) {
+                character.spellSlots[level] = parseInt(match[1]);
+                console.log(`Found ${level} spell slots:`, character.spellSlots[level]);
+            }
+        });
+    }
+
+    parseSpellStatistics(text, character) {
+        console.log('Parsing spell statistics...');
+        
+        const spellStatPatterns = [
+            /(?:Spell Attack|Attack)[:\s]*([+-]?\d+)/i,
+            /(?:Spell DC|DC)[:\s]*(\d+)/i
+        ];
+        
+        character.spellStatistics = {
+            attack: 0,
+            dc: 0
+        };
+        
+        const statKeys = ['attack', 'dc'];
+        statKeys.forEach((key, index) => {
+            const match = text.match(spellStatPatterns[index]);
+            if (match) {
+                character.spellStatistics[key] = parseInt(match[1]);
+                console.log(`Found spell ${key}:`, character.spellStatistics[key]);
+            }
+        });
+    }
+
+    parseFocusSpells(text, character) {
+        console.log('Parsing focus spells...');
+        
+        const focusSpellPatterns = [
+            /(?:Focus Spells|Focus)[:\s]*([^.\n]+)/i,
+            /Focus[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of focusSpellPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const spells = match[1].split(/[,\n]/).map(spell => spell.trim()).filter(spell => spell.length > 0);
+                character.focusSpells = spells;
+                console.log('Found focus spells:', character.focusSpells);
+                break;
+            }
+        }
+    }
+
+    parseInnateSpells(text, character) {
+        console.log('Parsing innate spells...');
+        
+        const innateSpellPatterns = [
+            /(?:Innate Spells|Innate)[:\s]*([^.\n]+)/i,
+            /Innate[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of innateSpellPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const spells = match[1].split(/[,\n]/).map(spell => spell.trim()).filter(spell => spell.length > 0);
+                character.innateSpells = spells;
+                console.log('Found innate spells:', character.innateSpells);
+                break;
+            }
+        }
+    }
+
+    parseRituals(text, character) {
+        console.log('Parsing rituals...');
+        
+        const ritualPatterns = [
+            /(?:Rituals|Ritual)[:\s]*([^.\n]+)/i,
+            /Ritual[:\s]*([A-Za-z\s]+)/i
+        ];
+        
+        for (const pattern of ritualPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const rituals = match[1].split(/[,\n]/).map(ritual => ritual.trim()).filter(ritual => ritual.length > 0);
+                character.rituals = rituals;
+                console.log('Found rituals:', character.rituals);
+                break;
+            }
+        }
     }
 }
 
