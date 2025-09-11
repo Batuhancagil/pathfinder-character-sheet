@@ -312,8 +312,28 @@ class PDFUploadManager {
 
         // Save character using existing import system
         if (window.characterCardManager && window.characterCardManager.importer) {
-            window.characterCardManager.importer.importCharacter(updatedData);
-            window.characterCardManager.refreshCharacters();
+            try {
+                console.log('Saving character from PDF:', updatedData);
+                
+                // Convert to JSON string for importCharacter
+                const jsonString = JSON.stringify(updatedData);
+                console.log('JSON string:', jsonString);
+                
+                // Import the character
+                await window.characterCardManager.importer.importCharacter(jsonString);
+                
+                // Refresh the character list
+                await window.characterCardManager.refreshCharacters();
+                
+                console.log('Character saved successfully from PDF');
+                
+            } catch (error) {
+                console.error('Error saving character from PDF:', error);
+                alert('Error saving character: ' + error.message);
+            }
+        } else {
+            console.error('CharacterCardManager or importer not found');
+            alert('Error: Character system not initialized');
         }
 
         // Close preview dialog

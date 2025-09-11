@@ -102,84 +102,188 @@ class PDFParser {
     }
 
     parseBasicInfo(text, character) {
-        // Parse name (usually at the top)
-        const nameMatch = text.match(/(?:Name|Character Name)[:\s]*([A-Za-z\s]+)/i);
-        if (nameMatch) {
-            character.name = nameMatch[1].trim();
+        console.log('Parsing basic info from text...');
+        
+        // Parse name - multiple patterns
+        const namePatterns = [
+            /(?:Name|Character Name)[:\s]*([A-Za-z\s]+?)(?:\n|$)/i,
+            /^([A-Z][a-z]+ [A-Z][a-z]+)/m,
+            /Character:\s*([A-Za-z\s]+)/i,
+            /^([A-Z][a-z]+)/m
+        ];
+        
+        for (const pattern of namePatterns) {
+            const match = text.match(pattern);
+            if (match && match[1].trim().length > 2) {
+                character.name = match[1].trim();
+                console.log('Found name:', character.name);
+                break;
+            }
         }
 
-        // Parse class and level
-        const classLevelMatch = text.match(/([A-Za-z\s]+)\s+(\d+)(?:\s+level|\s+Level)/i);
-        if (classLevelMatch) {
-            character.class = classLevelMatch[1].trim();
-            character.level = parseInt(classLevelMatch[2]);
+        // Parse class and level - multiple patterns
+        const classLevelPatterns = [
+            /([A-Za-z\s]+)\s+(\d+)(?:\s+level|\s+Level)/i,
+            /Level\s+(\d+)\s+([A-Za-z\s]+)/i,
+            /([A-Za-z]+)\s+(\d+)/,
+            /Class[:\s]*([A-Za-z\s]+).*?Level[:\s]*(\d+)/i
+        ];
+        
+        for (const pattern of classLevelPatterns) {
+            const match = text.match(pattern);
+            if (match && match[1] && match[2]) {
+                character.class = match[1].trim();
+                character.level = parseInt(match[2]);
+                console.log('Found class:', character.class, 'level:', character.level);
+                break;
+            }
         }
 
-        // Parse ancestry
-        const ancestryMatch = text.match(/(?:Ancestry|Race)[:\s]*([A-Za-z\s]+)/i);
-        if (ancestryMatch) {
-            character.ancestry = ancestryMatch[1].trim();
+        // Parse ancestry - multiple patterns
+        const ancestryPatterns = [
+            /(?:Ancestry|Race)[:\s]*([A-Za-z\s]+?)(?:\n|$)/i,
+            /Ancestry[:\s]*([A-Za-z]+)/i,
+            /Race[:\s]*([A-Za-z]+)/i
+        ];
+        
+        for (const pattern of ancestryPatterns) {
+            const match = text.match(pattern);
+            if (match && match[1].trim().length > 2) {
+                character.ancestry = match[1].trim();
+                console.log('Found ancestry:', character.ancestry);
+                break;
+            }
         }
 
         // Parse background
-        const backgroundMatch = text.match(/(?:Background)[:\s]*([A-Za-z\s]+)/i);
-        if (backgroundMatch) {
-            character.background = backgroundMatch[1].trim();
+        const backgroundPatterns = [
+            /(?:Background)[:\s]*([A-Za-z\s]+?)(?:\n|$)/i,
+            /Background[:\s]*([A-Za-z]+)/i
+        ];
+        
+        for (const pattern of backgroundPatterns) {
+            const match = text.match(pattern);
+            if (match && match[1].trim().length > 2) {
+                character.background = match[1].trim();
+                console.log('Found background:', character.background);
+                break;
+            }
         }
 
         // Parse alignment
-        const alignmentMatch = text.match(/(?:Alignment)[:\s]*([A-Za-z\s]+)/i);
-        if (alignmentMatch) {
-            character.alignment = alignmentMatch[1].trim();
+        const alignmentPatterns = [
+            /(?:Alignment)[:\s]*([A-Za-z\s]+?)(?:\n|$)/i,
+            /Alignment[:\s]*([A-Za-z]+)/i
+        ];
+        
+        for (const pattern of alignmentPatterns) {
+            const match = text.match(pattern);
+            if (match && match[1].trim().length > 1) {
+                character.alignment = match[1].trim();
+                console.log('Found alignment:', character.alignment);
+                break;
+            }
         }
     }
 
     parseAbilityScores(text, character) {
+        console.log('Parsing ability scores...');
+        
         const abilities = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
         const abilityAbbrevs = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
         
         abilities.forEach((ability, index) => {
             const abbrev = abilityAbbrevs[index];
             
-            // Look for patterns like "STR 18" or "Strength 18"
+            // Multiple patterns for each ability
             const patterns = [
                 new RegExp(`${abbrev}\\s*([0-9]+)`, 'i'),
-                new RegExp(`${ability}\\s*([0-9]+)`, 'i')
+                new RegExp(`${ability}\\s*([0-9]+)`, 'i'),
+                new RegExp(`${abbrev.toUpperCase()}\\s*([0-9]+)`, 'i'),
+                new RegExp(`${abbrev}:\\s*([0-9]+)`, 'i'),
+                new RegExp(`${ability}:\\s*([0-9]+)`, 'i')
             ];
             
             for (const pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) {
                     const score = parseInt(match[1]);
-                    character.abilities[ability] = score;
-                    character.abilityModifiers[ability] = Math.floor((score - 10) / 2);
-                    break;
+                    if (score >= 1 && score <= 30) { // Valid ability score range
+                        character.abilities[ability] = score;
+                        character.abilityModifiers[ability] = Math.floor((score - 10) / 2);
+                        console.log(`Found ${ability}: ${score} (mod: ${character.abilityModifiers[ability]})`);
+                        break;
+                    }
                 }
             }
         });
     }
 
     parseCombatStats(text, character) {
-        // Parse AC
-        const acMatch = text.match(/(?:AC|Armor Class)[:\s]*([0-9]+)/i);
-        if (acMatch) {
-            character.ac = parseInt(acMatch[1]);
+        console.log('Parsing combat stats...');
+        
+        // Parse AC - multiple patterns
+        const acPatterns = [
+            /(?:AC|Armor Class)[:\s]*([0-9]+)/i,
+            /AC[:\s]*([0-9]+)/i,
+            /Armor Class[:\s]*([0-9]+)/i
+        ];
+        
+        for (const pattern of acPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const ac = parseInt(match[1]);
+                if (ac >= 0 && ac <= 50) { // Valid AC range
+                    character.ac = ac;
+                    console.log('Found AC:', character.ac);
+                    break;
+                }
+            }
         }
 
-        // Parse HP
-        const hpMatch = text.match(/(?:HP|Hit Points)[:\s]*([0-9]+)/i);
-        if (hpMatch) {
-            character.hp = parseInt(hpMatch[1]);
+        // Parse HP - multiple patterns
+        const hpPatterns = [
+            /(?:HP|Hit Points)[:\s]*([0-9]+)/i,
+            /HP[:\s]*([0-9]+)/i,
+            /Hit Points[:\s]*([0-9]+)/i,
+            /Health[:\s]*([0-9]+)/i
+        ];
+        
+        for (const pattern of hpPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const hp = parseInt(match[1]);
+                if (hp >= 1 && hp <= 1000) { // Valid HP range
+                    character.hp = hp;
+                    console.log('Found HP:', character.hp);
+                    break;
+                }
+            }
         }
 
-        // Parse Speed
-        const speedMatch = text.match(/(?:Speed)[:\s]*([0-9]+)/i);
-        if (speedMatch) {
-            character.speed = parseInt(speedMatch[1]);
+        // Parse Speed - multiple patterns
+        const speedPatterns = [
+            /(?:Speed)[:\s]*([0-9]+)/i,
+            /Speed[:\s]*([0-9]+)/i,
+            /Movement[:\s]*([0-9]+)/i
+        ];
+        
+        for (const pattern of speedPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const speed = parseInt(match[1]);
+                if (speed >= 0 && speed <= 200) { // Valid speed range
+                    character.speed = speed;
+                    console.log('Found Speed:', character.speed);
+                    break;
+                }
+            }
         }
     }
 
     parseSkills(text, character) {
+        console.log('Parsing skills...');
+        
         const commonSkills = [
             'acrobatics', 'arcana', 'athletics', 'crafting', 'deception', 'diplomacy',
             'intimidation', 'medicine', 'nature', 'occultism', 'performance', 'religion',
@@ -187,24 +291,31 @@ class PDFParser {
         ];
 
         commonSkills.forEach(skill => {
-            // Look for patterns like "+19Perception" or "Perception +19"
+            // Multiple patterns for each skill
             const patterns = [
                 new RegExp(`([+-]?[0-9]+)${skill}`, 'i'),
-                new RegExp(`${skill}\\s*([+-]?[0-9]+)`, 'i')
+                new RegExp(`${skill}\\s*([+-]?[0-9]+)`, 'i'),
+                new RegExp(`${skill}\\s*[:\s]*([+-]?[0-9]+)`, 'i'),
+                new RegExp(`([+-]?[0-9]+)\\s*${skill}`, 'i')
             ];
 
             for (const pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) {
                     const modifier = parseInt(match[1]);
-                    character.skills.push({
-                        name: skill,
-                        modifier: modifier
-                    });
-                    break;
+                    if (modifier >= -10 && modifier <= 50) { // Valid skill modifier range
+                        character.skills.push({
+                            name: skill,
+                            modifier: modifier
+                        });
+                        console.log(`Found skill ${skill}: ${modifier >= 0 ? '+' : ''}${modifier}`);
+                        break;
+                    }
                 }
             }
         });
+        
+        console.log(`Total skills found: ${character.skills.length}`);
     }
 
     parseFeats(text, character) {
