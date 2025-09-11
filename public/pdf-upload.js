@@ -1,13 +1,19 @@
 class PDFUploadManager {
     constructor() {
+        console.log('PDFUploadManager: Initializing...');
         this.parser = new PDFParser();
         this.setupEventListeners();
+        console.log('PDFUploadManager: Initialized successfully');
     }
 
     setupEventListeners() {
+        console.log('PDFUploadManager: Setting up event listeners...');
+        
         // PDF Upload button
         document.addEventListener('click', (e) => {
+            console.log('Click event detected on:', e.target);
             if (e.target && e.target.id === 'uploadPdfBtn') {
+                console.log('PDF Upload button clicked!');
                 this.showPDFUploadDialog();
             }
         });
@@ -378,5 +384,7 @@ class PDFUploadManager {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing PDFUploadManager...');
     window.pdfUploadManager = new PDFUploadManager();
+    console.log('PDFUploadManager attached to window:', !!window.pdfUploadManager);
 });
