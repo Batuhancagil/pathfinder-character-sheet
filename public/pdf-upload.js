@@ -282,17 +282,17 @@ class PDFUploadManager {
         document.body.appendChild(dialog);
 
         // Setup event listeners
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
             if (e.target && e.target.id === 'cancelPreviewBtn') {
                 document.body.removeChild(dialog);
             }
             if (e.target && e.target.id === 'saveCharacterBtn') {
-                this.saveCharacterFromPreview(characterData);
+                await this.saveCharacterFromPreview(characterData);
             }
         });
     }
 
-    saveCharacterFromPreview(originalData) {
+    async saveCharacterFromPreview(originalData) {
         // Collect updated data from preview form
         const updatedData = { ...originalData };
         
