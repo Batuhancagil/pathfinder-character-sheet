@@ -103,39 +103,60 @@ class PDFParser {
 
     parseBasicInfo(text, character) {
         console.log('Parsing basic info from text...');
+        console.log('Text preview:', text.substring(0, 500));
         
-        // Parse name - multiple patterns
+        // Parse name - more specific patterns for Pathfinder character sheets
         const namePatterns = [
-            /(?:Name|Character Name)[:\s]*([A-Za-z\s]+?)(?:\n|$)/i,
-            /^([A-Z][a-z]+ [A-Z][a-z]+)/m,
-            /Character:\s*([A-Za-z\s]+)/i,
-            /^([A-Z][a-z]+)/m
+            /(?:Name|Character Name)[:\s]*([A-Za-z\s]+?)(?:\n|Class|Level|Ancestry)/i,
+            /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*?)(?:\s+Level|\s+Class|\s+Ancestry|\n)/m,
+            /Character:\s*([A-Za-z\s]+?)(?:\n|Class|Level)/i,
+            /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*?)(?:\s+\d+|\s+level)/m
         ];
         
         for (const pattern of namePatterns) {
             const match = text.match(pattern);
-            if (match && match[1].trim().length > 2) {
-                character.name = match[1].trim();
-                console.log('Found name:', character.name);
-                break;
+            if (match && match[1].trim().length > 2 && match[1].trim().length < 50) {
+                // Filter out common false positives
+                const name = match[1].trim();
+                if (!name.includes('Unarmed') && !name.includes('Simple') && 
+                    !name.includes('Martial') && !name.includes('Advanced') &&
+                    !name.includes('Other') && !name.includes('T E M L') &&
+                    !name.includes('B P S') && !name.includes('Background') &&
+                    !name.includes('Notes') && !name.includes('Skills') &&
+                    !name.includes('Feats') && !name.includes('Spells')) {
+                    character.name = name;
+                    console.log('Found name:', character.name);
+                    break;
+                }
             }
         }
 
-        // Parse class and level - multiple patterns
+        // Parse class and level - more specific patterns
         const classLevelPatterns = [
             /([A-Za-z\s]+)\s+(\d+)(?:\s+level|\s+Level)/i,
             /Level\s+(\d+)\s+([A-Za-z\s]+)/i,
-            /([A-Za-z]+)\s+(\d+)/,
-            /Class[:\s]*([A-Za-z\s]+).*?Level[:\s]*(\d+)/i
+            /Class[:\s]*([A-Za-z\s]+).*?Level[:\s]*(\d+)/i,
+            /([A-Za-z]+)\s+(\d+)(?:\s|$)/m
         ];
         
         for (const pattern of classLevelPatterns) {
             const match = text.match(pattern);
             if (match && match[1] && match[2]) {
-                character.class = match[1].trim();
-                character.level = parseInt(match[2]);
-                console.log('Found class:', character.class, 'level:', character.level);
-                break;
+                const className = match[1].trim();
+                const level = parseInt(match[2]);
+                
+                // Filter out false positives for class
+                if (className.length > 2 && className.length < 30 && 
+                    !className.includes('Unarmed') && !className.includes('Simple') &&
+                    !className.includes('Martial') && !className.includes('Advanced') &&
+                    !className.includes('Other') && !className.includes('Background') &&
+                    !className.includes('Notes') && !className.includes('Skills') &&
+                    level >= 1 && level <= 20) {
+                    character.class = className;
+                    character.level = level;
+                    console.log('Found class:', character.class, 'level:', character.level);
+                    break;
+                }
             }
         }
 

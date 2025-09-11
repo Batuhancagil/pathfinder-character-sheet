@@ -317,6 +317,10 @@ class PDFUploadManager {
         });
 
         // Save character using existing import system
+        console.log('Checking for CharacterCardManager...');
+        console.log('window.characterCardManager:', !!window.characterCardManager);
+        console.log('window.characterCardManager.importer:', !!(window.characterCardManager && window.characterCardManager.importer));
+        
         if (window.characterCardManager && window.characterCardManager.importer) {
             try {
                 console.log('Saving character from PDF:', updatedData);
@@ -332,6 +336,7 @@ class PDFUploadManager {
                 await window.characterCardManager.refreshCharacters();
                 
                 console.log('Character saved successfully from PDF');
+                alert('Character saved successfully!');
                 
             } catch (error) {
                 console.error('Error saving character from PDF:', error);
@@ -339,7 +344,25 @@ class PDFUploadManager {
             }
         } else {
             console.error('CharacterCardManager or importer not found');
-            alert('Error: Character system not initialized');
+            console.log('Available window objects:', Object.keys(window).filter(k => k.includes('character') || k.includes('Character')));
+            
+            // Try alternative save method
+            try {
+                console.log('Trying alternative save method...');
+                const jsonString = JSON.stringify(updatedData);
+                
+                // Try using character-import.js directly
+                if (window.characterImporter) {
+                    await window.characterImporter.importCharacter(jsonString);
+                    console.log('Character saved via characterImporter');
+                    alert('Character saved successfully!');
+                } else {
+                    throw new Error('No import method available');
+                }
+            } catch (altError) {
+                console.error('Alternative save method failed:', altError);
+                alert('Error: Character system not properly initialized. Please refresh the page and try again.');
+            }
         }
 
         // Close preview dialog
